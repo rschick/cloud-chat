@@ -1,0 +1,8 @@
+{
+  "name": "cloud-auth0",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express-jwt": "^6.0.0",
+    "jwks-rsa": "^2.0.4"
+  }
+}
