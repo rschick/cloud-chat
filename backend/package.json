@@ -1,8 +1,10 @@
 {
   "name": "cloud-auth0",
+  "type": "module",
   "dependencies": {
     "cors": "^2.8.5",
     "express-jwt": "^6.0.0",
-    "jwks-rsa": "^2.0.4"
+    "jwks-rsa": "^2.0.4",
+    "@serverless/cloud-auth0": "file:./packages/cloud-auth0"
   }
 }
