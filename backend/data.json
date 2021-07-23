@@ -3,12 +3,31 @@
     "key": "message:1",
     "value": {
       "id": "1",
-      "text": "Hey!",
-      "first": "Russ",
-      "last": "Schick",
-      "lat": "",
-      "lon": "",
-      "ts": ""
+      "text": "Hey!"
+    }
+  },
+  {
+    "key": "message:2",
+    "value": {
+      "id": "2",
+      "text": "How's it going?",
+      "me": true
+    }
+  },
+  {
+    "key": "message:3",
+    "value": {
+      "id": "3",
+      "text": "Hi Russell,\nWe are hoping to be in Vancouver in or around Aug 5 th.\nDerek has offered us to stay at his house. But I would like to visit you also in Squamish if it is possible.  I guess Both Philippe and Derek are planning to spend time in Whistler. We will float around in hope to see everyone! And hope that I don’t experience pain to keep me from moving around!\nAre you planning any trips or visits?",
+      "me": false
+    }
+  },
+  {
+    "key": "message:4",
+    "value": {
+      "id": "4",
+      "text": "This is a longer message with some interesting things to say about the weekend, and life and so on.",
+      "me": true
     }
   }
 ]

@@ -1,18 +1,15 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSnapshot } from "valtio";
-import messages from "../state/messages";
+import messages from "@state/messages";
+import MessageBubble from "@components/MessageBubble";
 
 export default function Messages() {
   const snap = useSnapshot(messages);
 
-  useEffect(() => {
-    messages.fetch();
-  }, []);
-
   return (
-    <ul>
+    <ul className="list-unstyled">
       {snap.items.map((message, index) => {
-        return <li key={index}>{message.value.text}</li>;
+        return <MessageBubble key={index} message={message}></MessageBubble>;
       })}
     </ul>
   );

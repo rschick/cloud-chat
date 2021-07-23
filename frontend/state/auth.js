@@ -19,7 +19,12 @@ class Auth {
   error;
 
   async init() {
-    if (auth0 || typeof window === "undefined") {
+    if (typeof window === "undefined") {
+      this.isLoading = false;
+      return;
+    }
+
+    if (auth0) {
       return;
     }
 
@@ -41,7 +46,9 @@ class Auth {
         await auth0.checkSession();
       }
       this.user = await auth0.getUser();
-      this.isAuthenticated = true;
+      if (this.user) {
+        this.isAuthenticated = true;
+      }
       this.isLoading = false;
     } catch (error) {
       this.error = error;
@@ -63,7 +70,9 @@ class Auth {
   }
 
   async logout() {
-    auth0.logout();
+    auth0.logout({
+      returnTo: process.env.NEXT_PUBLIC_POST_LOGOUT_REDIRECT_URI,
+    });
     this.user = undefined;
     this.isAuthenticated = false;
     this.isLoading = true;
