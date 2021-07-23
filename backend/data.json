@@ -1,0 +1,14 @@
+[
+  {
+    "key": "message:1",
+    "value": {
+      "id": "1",
+      "text": "Hey!",
+      "first": "Russ",
+      "last": "Schick",
+      "lat": "",
+      "lon": "",
+      "ts": ""
+    }
+  }
+]
