@@ -1,33 +1,38 @@
 [
   {
-    "key": "message:1",
+    "key": "conversation1:message_1vjmg2wmBq0FxnftynQsLewepEz",
     "value": {
-      "id": "1",
-      "text": "Hey!"
+      "id": "1vjmg2wmBq0FxnftynQsLewepEz",
+      "conv": "conversation1",
+      "text": "Hey!",
+      "from": "user1"
     }
   },
   {
-    "key": "message:2",
+    "key": "conversation1:message_1vjoUSCxMAfamZGGrCKPdTduqCF",
     "value": {
-      "id": "2",
+      "id": "1vjoUSCxMAfamZGGrCKPdTduqCF",
+      "conv": "conversation1",
       "text": "How's it going?",
-      "me": true
+      "from": "github|423474"
     }
   },
   {
-    "key": "message:3",
+    "key": "conversation1:message_1vjoWjLs5WJBzhsqnjggtAui2HV",
     "value": {
-      "id": "3",
+      "id": "1vjoWjLs5WJBzhsqnjggtAui2HV",
+      "conv": "conversation1",
       "text": "Hi Russell,\nWe are hoping to be in Vancouver in or around Aug 5 th.\nDerek has offered us to stay at his house. But I would like to visit you also in Squamish if it is possible.  I guess Both Philippe and Derek are planning to spend time in Whistler. We will float around in hope to see everyone! And hope that I don’t experience pain to keep me from moving around!\nAre you planning any trips or visits?",
-      "me": false
+      "from": "user1"
     }
   },
   {
-    "key": "message:4",
+    "key": "conversation1:message_1vjoYSbbNoQmt6jcPrq7h7ZLtUp",
     "value": {
-      "id": "4",
+      "id": "1vjoYSbbNoQmt6jcPrq7h7ZLtUp",
+      "conv": "conversation1",
       "text": "This is a longer message with some interesting things to say about the weekend, and life and so on.",
-      "me": true
+      "from": "github|423474"
     }
   }
 ]

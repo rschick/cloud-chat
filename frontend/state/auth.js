@@ -32,6 +32,10 @@ class Auth {
       domain: process.env.NEXT_PUBLIC_AUTH0_DOMAIN,
       client_id: process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID,
       redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
+      audience: process.env.NEXT_PUBLIC_BACKEND_API,
+      scope: "openid email profile",
+      useRefreshTokens: true,
+      cacheLocation: "localstorage",
     });
 
     try {
@@ -59,10 +63,7 @@ class Auth {
   }
 
   async getToken() {
-    return auth0.getTokenSilently({
-      audience: process.env.NEXT_PUBLIC_BACKEND_API,
-      scope: "read:posts",
-    });
+    return auth0.getTokenSilently();
   }
 
   async login() {

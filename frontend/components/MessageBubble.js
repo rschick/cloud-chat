@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-export default function MessageBubble({ message }) {
+export default function MessageBubble({ message, sent }) {
   return (
     <>
       <style jsx>{`
@@ -57,12 +57,12 @@ export default function MessageBubble({ message }) {
       <li
         className={clsx(
           "d-flex align-items-center",
-          message.value.me && "flex-row-reverse"
+          sent && "flex-row-reverse"
         )}
       >
         <p
           className={clsx(
-            message.value.me ? "bg-primary text-white send" : "bg-light receive"
+            sent ? "bg-primary text-white send" : "bg-light receive"
           )}
         >
           {message.value.text}
