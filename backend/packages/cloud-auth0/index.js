@@ -10,7 +10,7 @@ export function auth() {
       jwksRequestsPerMinute: 5,
       jwksUri: `https://${params.AUTH0_DOMAIN}/.well-known/jwks.json`,
     }),
-    audience: params.CLOUD_URL,
+    audience: params.AUTH0_AUDIENCE,
     issuer: `https://${params.AUTH0_DOMAIN}/`,
     algorithms: ["RS256"],
   });

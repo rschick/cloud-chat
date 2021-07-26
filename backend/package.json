@@ -1,5 +1,5 @@
 {
-  "name": "cloud-auth0",
+  "name": "cloud-chat",
   "type": "module",
   "dependencies": {
     "@serverless/cloud-auth0": "file:./packages/cloud-auth0",

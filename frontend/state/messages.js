@@ -1,6 +1,7 @@
-import { proxy } from "valtio";
+import { proxy, subscribe } from "valtio";
 
 import auth from "./auth";
+import conversations from "./conversations";
 
 class Messages {
   items = [];
@@ -11,7 +12,14 @@ class Messages {
       this.fetch();
     }
 
-    return () => this.stop();
+    const unsubscribe = subscribe(conversations, () => {
+      this.fetch();
+    });
+
+    return () => {
+      this.stop();
+      unsubscribe();
+    };
   }
 
   stop() {
@@ -22,9 +30,14 @@ class Messages {
   }
 
   async fetch() {
+    const conversationId = conversations.selectedId;
+    if (!conversationId) {
+      return;
+    }
+
     const token = await auth.getToken();
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API}/messages`,
+      `${process.env.NEXT_PUBLIC_BACKEND_API}/messages?conv=${conversationId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -34,9 +47,19 @@ class Messages {
 
     const { items } = await response.json();
     this.items = items;
+
+    conversations.updateLastMessage(
+      conversationId,
+      items[items.length - 1].value.text
+    );
   }
 
   async send(text) {
+    const conversationId = conversations.selectedId;
+    if (!conversationId) {
+      return;
+    }
+
     const token = await auth.getToken();
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API}/messages`,
@@ -47,6 +70,7 @@ class Messages {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          to: conversationId,
           text,
         }),
       }
@@ -54,6 +78,11 @@ class Messages {
 
     const { items } = await response.json();
     this.items = items;
+
+    conversations.updateLastMessage(
+      conversationId,
+      items[items.length - 1].value.text
+    );
   }
 }
 

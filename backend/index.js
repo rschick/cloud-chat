@@ -7,13 +7,13 @@ api.use(cors());
 api.use(auth());
 
 api.get("/messages", async (req, res) => {
-  const to = "conversation1";
+  const to = req.query.conv;
   const messages = await data.get(`${to}:*`);
   res.json(messages);
 });
 
 api.post("/messages", async (req, res) => {
-  const to = "conversation1";
+  const to = req.body.to;
   const id = await ksuid.random();
   const message = {
     id: `${to}:message_${id.string}`,
@@ -25,8 +25,18 @@ api.post("/messages", async (req, res) => {
 
   console.log(message);
 
-  await data.set(message.id, message);
+  await Promise.all([
+    data.set(message.id, message),
+    data.set(`conversation:${to}`, {
+      last: req.body.text,
+    }),
+  ]);
 
   const messages = await data.get(`${to}:*`);
   res.json(messages);
+});
+
+api.get("/conversations", async (req, res) => {
+  const conversations = await data.get("conversation:*");
+  res.json(conversations);
 });

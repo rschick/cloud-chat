@@ -3,7 +3,6 @@ import { useSnapshot } from "valtio";
 
 export default function Avatar() {
   const { user } = useSnapshot(auth);
-  console.log(user);
   return (
     <>
       <style jsx>{`
