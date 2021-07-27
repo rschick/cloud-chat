@@ -50,12 +50,12 @@ export default function SearchResults() {
   }, []);
 
   const handleUserClick = useCallback((id) => {
-    console.log("user click", id);
+    conversations.new(id);
   }, []);
 
   return (
     <div className="p-2">
-      {conversationList.length && (
+      {conversationList.length > 0 && (
         <div className="p-0 pt-4">
           <h4>Conversations</h4>
           <ul className="list-group rounded-0">
@@ -70,7 +70,7 @@ export default function SearchResults() {
         </div>
       )}
 
-      {userList.length && (
+      {userList.length > 0 && (
         <div className="p-0 pt-4">
           <h4>Users</h4>
           <ul className="list-group">

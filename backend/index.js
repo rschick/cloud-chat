@@ -26,34 +26,65 @@ api.use(async (req, res, next) => {
 });
 
 api.get("/messages", async (req, res) => {
-  const to = req.query.conv;
-  const messages = await data.get(`${to}:*`);
+  const messages = await data.get(`conv_${req.query.conv}:*`);
   res.json(messages);
 });
 
+api.get("/state", async (req, res) => {
+  const [messages, conversations] = await Promise.all([
+    data.get(`conv_${req.query.conv}:*`),
+    data.get(`user_${req.user.id}:conv_*`),
+  ]);
+
+  res.json({ messages, conversations });
+});
+
 api.post("/messages", async (req, res) => {
-  const to = req.body.to;
+  let conv = req.body.conv;
+
+  if (!conv) {
+    // Start a new conversation
+    const userId = req.body.userId;
+    const user = await data.get(`user:${userId}`);
+    const newid = await ksuid.random();
+    conv = newid.string;
+    await Promise.all([
+      data.set(`user_${req.user.id}:conv_${conv}`, {
+        id: conv,
+        title: user.name,
+      }),
+      data.set(`user_${user.id}:conv_${conv}`, {
+        id: conv,
+        title: req.user.name,
+      }),
+    ]);
+  }
+
   const id = await ksuid.random();
   const message = {
-    id: `${to}:message_${id.string}`,
+    id: id.string,
     text: req.body.text,
     from: req.user.id,
-    to,
+    conv,
   };
 
   await Promise.all([
-    data.set(message.id, message),
-    data.set(`conversation:${to}`, {
+    data.set(`conv_${conv}:msg_${message.id}`, message),
+    data.set(`conversation:${conv}`, {
       last: req.body.text,
     }),
   ]);
 
-  const messages = await data.get(`${to}:*`);
-  res.json(messages);
+  const [messages, conversations] = await Promise.all([
+    data.get(`conv_${conv}:*`),
+    data.get(`user_${req.user.id}:conv_*`),
+  ]);
+
+  res.json({ messages, conversations });
 });
 
 api.get("/conversations", async (req, res) => {
-  const conversations = await data.get("conversation:*");
+  const conversations = await data.get(`user_${req.user.id}:conv_*`);
   res.json(conversations);
 });
 

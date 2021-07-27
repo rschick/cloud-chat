@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useSnapshot } from "valtio";
-import conversations from "@state/conversations";
+import messageState from "@state/messages";
 import clsx from "clsx";
 
 function ConversationItem({ title, last, selected, onClick }) {
@@ -33,20 +33,20 @@ function ConversationItem({ title, last, selected, onClick }) {
 }
 
 export default function ConversationList() {
-  const { items, selectedId } = useSnapshot(conversations);
+  const { conversations, selectedConversationId } = useSnapshot(messageState);
 
   const handleItemClick = useCallback((id) => {
-    conversations.select(id);
+    messageState.selectConversation(id);
   }, []);
 
   return (
     <div>
       <ul className="list-group rounded-0">
-        {items.map(({ key, value }) => (
+        {conversations.map(({ key, value }) => (
           <ConversationItem
             key={key}
             {...value}
-            selected={value.id === selectedId}
+            selected={value.id === selectedConversationId}
             onClick={() => handleItemClick(value.id)}
           />
         ))}

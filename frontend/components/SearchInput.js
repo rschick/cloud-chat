@@ -15,17 +15,9 @@ export default function SearchInput({
     }
   }, [searching]);
 
-  const handleBlur = useCallback(() => {
-    if (!value && searching) {
-      onSearchingChange(false);
-    }
-  }, [value, searching]);
-
   const handleClose = useCallback(() => {
-    if (value) {
-      onChange("");
-      onSearchingChange(false);
-    }
+    onChange("");
+    onSearchingChange(false);
   }, [value]);
 
   const handleChange = useCallback((event) => {
@@ -61,7 +53,6 @@ export default function SearchInput({
         className="form-control rounded-3 input"
         placeholder="Search"
         onFocus={handleFocus}
-        onBlur={handleBlur}
         value={value}
         onChange={handleChange}
       />

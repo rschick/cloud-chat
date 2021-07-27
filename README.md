@@ -20,12 +20,16 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 
 # TODO
 
+- list only conversations you are a part of
 - list users and start a conversation
 - list conversations
-- sticky header and footer
 - display who you're chatting with in the header
 - find users by location
 - display users on a map
 - keep track of and show users that are "online"
-- two column layout for larger screens
-- user profiles
+- edit your user profile
+- display user avatar in conversation list
+- multi-user conversations
+- multi-line messages
+- typing indicator
+- show dates in conversation thread

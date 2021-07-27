@@ -11,7 +11,6 @@ export default function MessageInput() {
       (async () => {
         event.preventDefault();
         event.stopPropagation();
-        console.log("submit");
         messages.send(message);
         setMessage("");
       })();
@@ -20,22 +19,22 @@ export default function MessageInput() {
   );
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="position-absolute bottom-0 w-100">
       <style jsx>{`
-        form {
-          background-color: rgba(255, 255, 255, 0.5);
+        * {
+          background-color: rgba(255, 255, 255, 0.6);
         }
       `}</style>
 
-      <Form.Group className="mb-2 p-2">
-        <Form.Control
-          className="text-muted rounded-pill"
+      <div className="p-2">
+        <input
+          className="text-muted rounded-pill form-control"
           type="text"
           value={message}
           placeholder="Message"
           onChange={(event) => setMessage(event.target.value)}
         />
-      </Form.Group>
-    </Form>
+      </div>
+    </form>
   );
 }

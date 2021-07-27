@@ -1,10 +1,27 @@
 import { proxy, subscribe } from "valtio";
 
 import auth from "./auth";
-import conversations from "./conversations";
 
 class Messages {
-  items = [];
+  messages = [];
+  conversations = [];
+
+  selectedConversation;
+  selectedConversationId;
+  selectedUserId;
+
+  selectConversation(id) {
+    this.selectedConversationId = id;
+    this.selectedConversation = this.conversations.find(
+      (conv) => conv.value.id === id
+    );
+  }
+
+  newConversation(userId) {
+    this.selectedConversationId = undefined;
+    this.selectedConversation = undefined;
+    this.selectedUserId = userId;
+  }
 
   start() {
     if (!this.interval) {
@@ -12,13 +29,8 @@ class Messages {
       this.fetch();
     }
 
-    const unsubscribe = subscribe(conversations, () => {
-      this.fetch();
-    });
-
     return () => {
       this.stop();
-      unsubscribe();
     };
   }
 
@@ -29,37 +41,58 @@ class Messages {
     }
   }
 
-  async fetch() {
-    const conversationId = conversations.selectedId;
-    if (!conversationId) {
+  updateLastMessage(id, text) {
+    const conversation = this.conversations.find(
+      (conv) => conv.value.id === id
+    );
+    if (!conversation) {
+      console.warn("updateLastMessage(): missing conversation:", id);
       return;
+    }
+    conversation.value.last = text;
+  }
+
+  async fetch() {
+    const conversationId = this.selectedConversationId;
+    if (!conversationId) {
+      this.messages = [];
     }
 
     const token = await auth.getToken();
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API}/messages?conv=${conversationId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_API}/state`);
+    if (conversationId) {
+      url.searchParams.append("conv", conversationId);
+    }
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const { messages, conversations } = await response.json();
+    this.messages = messages.items;
+    this.conversations = conversations.items;
+
+    if (this.messages.length > 0) {
+      this.updateLastMessage(
+        conversationId,
+        this.messages[this.messages.length - 1].value.text
+      );
+    }
+
+    this.selectedConversation = this.conversations.find(
+      (conv) => conv.value.id === this.selectedConversationId
     );
 
-    const { items } = await response.json();
-    this.items = items;
-
-    conversations.updateLastMessage(
-      conversationId,
-      items[items.length - 1].value.text
-    );
+    if (!this.selectedConversationId && this.conversations[0]) {
+      this.selectedConversationId = this.conversations[0].value.id;
+      await this.fetch();
+    }
   }
 
   async send(text) {
-    const conversationId = conversations.selectedId;
-    if (!conversationId) {
-      return;
-    }
-
+    const conv = this.selectedConversationId;
+    const userId = this.selectedUserId;
     const token = await auth.getToken();
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API}/messages`,
@@ -70,20 +103,24 @@ class Messages {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          to: conversationId,
+          conv,
+          userId,
           text,
           name: auth.user.name,
         }),
       }
     );
 
-    const { items } = await response.json();
-    this.items = items;
+    const { messages, conversations } = await response.json();
+    this.messages = messages.items;
+    this.conversations = conversations.items;
 
-    conversations.updateLastMessage(
-      conversationId,
-      items[items.length - 1].value.text
-    );
+    if (this.messages.length > 0) {
+      this.updateLastMessage(
+        conv,
+        this.messages[this.messages.length - 1].value.text
+      );
+    }
   }
 }
 

@@ -17,7 +17,7 @@ class Users {
     );
 
     const { items } = await response.json();
-    this.items = items || [];
+    this.items = (items || []).filter((item) => item.value.id !== auth.user.id);
   }
 }
 

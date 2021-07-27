@@ -4,14 +4,19 @@ import { useSnapshot } from "valtio";
 import Avatar from "@components/Avatar";
 
 import auth from "@state/auth";
+import messages from "@state/messages";
 
 export default function TopNavbar() {
   const { user } = useSnapshot(auth);
+  const { selectedConversation } = useSnapshot(messages);
 
   return (
-    <Navbar bg="light">
+    <Navbar bg="light" className="border-bottom">
       <Container fluid>
-        <Nav className="w-100 justify-content-end">
+        <Navbar.Text className="flex-grow-1 text-center">
+          {selectedConversation ? selectedConversation.value.title : ""}
+        </Navbar.Text>
+        <Nav>
           <NavDropdown title={<Avatar />} align="end">
             <NavDropdown.Item>{user.name}</NavDropdown.Item>
             <NavDropdown.Item onClick={() => auth.logout()}>
