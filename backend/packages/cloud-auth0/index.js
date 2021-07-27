@@ -13,5 +13,6 @@ export function auth() {
     audience: params.AUTH0_AUDIENCE,
     issuer: `https://${params.AUTH0_DOMAIN}/`,
     algorithms: ["RS256"],
+    userProperty: "token",
   });
 }

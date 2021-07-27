@@ -27,10 +27,10 @@ class Conversations {
     );
 
     const { items } = await response.json();
-    this.items = items;
+    this.items = items || [];
 
-    if (!this.selectedId && items[0]) {
-      this.selectedId = items[0].value.id;
+    if (!this.selectedId && this.items[0]) {
+      this.selectedId = this.items[0].value.id;
     }
   }
 }

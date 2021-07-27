@@ -52,6 +52,7 @@ class Auth {
       this.user = await auth0.getUser();
       if (this.user) {
         this.isAuthenticated = true;
+        await this.updateProfile();
       }
       this.isLoading = false;
     } catch (error) {
@@ -78,6 +79,20 @@ class Auth {
     this.isAuthenticated = false;
     this.isLoading = true;
     this.error = undefined;
+  }
+
+  async updateProfile() {
+    const token = await this.getToken();
+    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/me`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: this.user.name,
+      }),
+    });
   }
 }
 

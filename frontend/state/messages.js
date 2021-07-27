@@ -72,6 +72,7 @@ class Messages {
         body: JSON.stringify({
           to: conversationId,
           text,
+          name: auth.user.name,
         }),
       }
     );
