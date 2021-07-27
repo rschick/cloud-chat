@@ -8,7 +8,9 @@ function UserItem({ name, onClick }) {
   return (
     <a
       href="#"
-      className={clsx("list-group-item list-group-item-action bg-gray-200")}
+      className={clsx(
+        "list-group-item list-group-item-action bg-gray-200 border-0 ps-2"
+      )}
       onClick={onClick}
     >
       <h1 className="fs-5 mb-1">{name}</h1>
@@ -21,7 +23,7 @@ function ConversationItem({ title, last, selected, onClick }) {
     <a
       href="#"
       className={clsx(
-        "list-group-item list-group-item-action bg-gray-200",
+        "list-group-item list-group-item-action bg-gray-200 border-0 ps-2",
         selected && "active"
       )}
       onClick={onClick}
@@ -52,17 +54,11 @@ export default function SearchResults() {
   }, []);
 
   return (
-    <div>
-      <style jsx>{`
-        ul {
-          border-radius: 0;
-        }
-      `}</style>
-
+    <div className="p-2">
       {conversationList.length && (
-        <>
+        <div className="p-0 pt-4">
           <h4>Conversations</h4>
-          <ul className="list-group">
+          <ul className="list-group rounded-0">
             {conversationList.map(({ key, value }) => (
               <ConversationItem
                 key={key}
@@ -71,11 +67,11 @@ export default function SearchResults() {
               />
             ))}
           </ul>
-        </>
+        </div>
       )}
 
       {userList.length && (
-        <>
+        <div className="p-0 pt-4">
           <h4>Users</h4>
           <ul className="list-group">
             {userList.map(({ key, value }) => (
@@ -86,7 +82,7 @@ export default function SearchResults() {
               />
             ))}
           </ul>
-        </>
+        </div>
       )}
     </div>
   );

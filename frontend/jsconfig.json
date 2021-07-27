@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "moduleResolution": "node",
     "paths": {
       "@components/*": ["components/*"],
       "@icons/*": ["icons/*"],
@@ -8,5 +9,6 @@
       "@layout/*": ["layout/*"],
       "@state/*": ["state/*"]
     }
-  }
+  },
+  "exclude": ["node_modules", ".next", "out"]
 }

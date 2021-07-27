@@ -59,9 +59,11 @@ api.get("/conversations", async (req, res) => {
 
 api.put("/me", async (req, res) => {
   await data.set(`user:${req.user.id}`, {
-    name: req.body.name,
+    ...req.body,
+    id: req.user.id,
   });
-  res.status(204).end();
+  const user = await data.get(`user:${req.user.id}`);
+  res.json(user);
 });
 
 api.get("/users", async (req, res) => {

@@ -23,9 +23,9 @@ export default function Home() {
       <Sidebar>
         <ConversationSearch />
       </Sidebar>
-      <Main>
+      <Main className="vh-100 d-flex flex-column">
         <TopNavbar />
-        <Messages />
+        <Messages className="flex-grow-1" />
         <MessageInput />
       </Main>
     </FullPageView>

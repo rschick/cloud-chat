@@ -16,7 +16,7 @@ export default function ConversationSearch() {
   }, []);
 
   return (
-    <>
+    <div className="p-2">
       <SearchInput
         value={query}
         onChange={handleQueryChange}
@@ -25,6 +25,6 @@ export default function ConversationSearch() {
       />
       {searching && <SearchResults />}
       {!searching && <ConversationList />}
-    </>
+    </div>
   );
 }

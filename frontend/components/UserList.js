@@ -19,13 +19,7 @@ export default function UserList() {
 
   return (
     <div>
-      <style jsx>{`
-        ul {
-          border-radius: 0;
-        }
-      `}</style>
-
-      <ul className="list-group">
+      <ul className="list-group rounded-0">
         {items.map(({ key, value }) => (
           <UserItem key={key} {...value} />
         ))}

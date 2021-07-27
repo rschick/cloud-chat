@@ -49,13 +49,13 @@ class Auth {
       } else {
         await auth0.checkSession();
       }
-      this.user = await auth0.getUser();
+      this.user = await this.getUser();
       if (this.user) {
         this.isAuthenticated = true;
-        await this.updateProfile();
       }
       this.isLoading = false;
     } catch (error) {
+      console.log(error);
       this.error = error;
       this.user = undefined;
       this.isAuthenticated = false;
@@ -81,18 +81,21 @@ class Auth {
     this.error = undefined;
   }
 
-  async updateProfile() {
+  async getUser() {
+    const identity = await auth0.getUser();
     const token = await this.getToken();
-    await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/me`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/me`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        name: this.user.name,
-      }),
+      body: JSON.stringify(identity),
     });
+
+    const user = await response.json();
+
+    return user;
   }
 }
 

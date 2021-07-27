@@ -21,12 +21,18 @@ export default function MessageInput() {
 
   return (
     <Form onSubmit={handleSubmit}>
-      <Form.Group className="mb-3">
+      <style jsx>{`
+        form {
+          background-color: rgba(255, 255, 255, 0.5);
+        }
+      `}</style>
+
+      <Form.Group className="mb-2 p-2">
         <Form.Control
-          className="text-muted"
+          className="text-muted rounded-pill"
           type="text"
           value={message}
-          placeholder="iMessage"
+          placeholder="Message"
           onChange={(event) => setMessage(event.target.value)}
         />
       </Form.Group>
