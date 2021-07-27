@@ -13,16 +13,19 @@ export default function SearchInput({
     if (!searching) {
       onSearchingChange(true);
     }
-  }, [searching]);
+  }, [onSearchingChange, searching]);
 
   const handleClose = useCallback(() => {
     onChange("");
     onSearchingChange(false);
-  }, [value]);
+  }, [onChange, onSearchingChange]);
 
-  const handleChange = useCallback((event) => {
-    onChange(event.target.value);
-  }, []);
+  const handleChange = useCallback(
+    (event) => {
+      onChange(event.target.value);
+    },
+    [onChange]
+  );
 
   return (
     <InputGroup>

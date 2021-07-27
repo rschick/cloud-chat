@@ -24,9 +24,10 @@ export default function Index() {
 
   return (
     <div className="d-flex vh-100 align-items-center">
-      <div className="d-flex vw-100 flex-column align-items-center">
-        <p>Welcome to the App!</p>
-        <Button onClick={() => authState.login()}>Log in</Button>
+      <div className="d-flex vw-100 flex-column align-items-center gap-5">
+        <h1>Welcome to CloudChat</h1>
+        <Button onClick={() => authState.login()}>Sign in with Auth0</Button>
+        <p>Powered by Serverless ⚡️ Cloud</p>
       </div>
     </div>
   );

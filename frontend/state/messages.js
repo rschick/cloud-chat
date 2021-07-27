@@ -13,12 +13,13 @@ class Messages {
   selectedUserId;
 
   selectConversation(id) {
+    this.messages = [];
     this.selectedConversationId = id;
     this.selectedConversation = this.conversations.find(
       (conv) => conv.value.conv === id
     );
-
     events.emit("conversation.selected", id);
+    this.fetch();
   }
 
   newConversation(userId) {

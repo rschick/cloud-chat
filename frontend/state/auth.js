@@ -54,6 +54,7 @@ class Auth {
         this.isAuthenticated = true;
       }
       this.isLoading = false;
+      this.error = undefined;
     } catch (error) {
       console.log(error);
       this.error = error;
@@ -83,6 +84,9 @@ class Auth {
 
   async getUser() {
     const identity = await auth0.getUser();
+    if (!identity) {
+      return;
+    }
     const token = await this.getToken();
     const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/me`, {
       method: "PUT",
