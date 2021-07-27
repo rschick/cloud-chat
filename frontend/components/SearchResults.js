@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useSnapshot } from "valtio";
-import conversations from "@state/conversations";
+import messages from "@state/messages";
 import users from "@state/users";
 import clsx from "clsx";
 
@@ -41,29 +41,24 @@ function ConversationItem({ title, last, selected, onClick }) {
   );
 }
 
-export default function SearchResults() {
-  const { items: conversationList } = useSnapshot(conversations);
+export default function SearchResults({
+  onConversationClick = () => {},
+  onUserClick = () => {},
+}) {
+  const { conversations } = useSnapshot(messages);
   const { items: userList } = useSnapshot(users);
-
-  const handleConversationClick = useCallback((id) => {
-    conversations.select(id);
-  }, []);
-
-  const handleUserClick = useCallback((id) => {
-    conversations.new(id);
-  }, []);
 
   return (
     <div className="p-2">
-      {conversationList.length > 0 && (
+      {conversations.length > 0 && (
         <div className="p-0 pt-4">
           <h4>Conversations</h4>
           <ul className="list-group rounded-0">
-            {conversationList.map(({ key, value }) => (
+            {conversations.map(({ key, value }) => (
               <ConversationItem
                 key={key}
                 {...value}
-                onClick={() => handleConversationClick(value.id)}
+                onClick={() => onConversationClick(value.conv)}
               />
             ))}
           </ul>
@@ -78,7 +73,7 @@ export default function SearchResults() {
               <UserItem
                 key={key}
                 {...value}
-                onClick={() => handleUserClick(value.id)}
+                onClick={() => onUserClick(value.id)}
               />
             ))}
           </ul>

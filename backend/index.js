@@ -10,14 +10,13 @@ api.use(cors());
 api.use(auth());
 
 api.use(async (req, res, next) => {
-  const id = uuidv5(req.token.sub, USER_UUID_NAMESPACE);
-  const user = await data.get(`user:${id}`);
+  const { sub } = req.token;
+  const id = uuidv5(sub, USER_UUID_NAMESPACE);
+  let user = await data.get(`user:${id}`);
 
   if (!user) {
-    await data.set(`user:${id}`, {
-      id,
-      sub: req.token.sub,
-    });
+    user = { id, sub };
+    await data.set(`user:${id}`, user);
   }
 
   req.user = user;
@@ -26,13 +25,13 @@ api.use(async (req, res, next) => {
 });
 
 api.get("/messages", async (req, res) => {
-  const messages = await data.get(`conv_${req.query.conv}:*`);
+  const messages = await data.get(`conv_${req.query.conv}:msg_*`);
   res.json(messages);
 });
 
 api.get("/state", async (req, res) => {
   const [messages, conversations] = await Promise.all([
-    data.get(`conv_${req.query.conv}:*`),
+    data.get(`conv_${req.query.conv}:msg_*`),
     data.get(`user_${req.user.id}:conv_*`),
   ]);
 
@@ -49,14 +48,24 @@ api.post("/messages", async (req, res) => {
     const newid = await ksuid.random();
     conv = newid.string;
     await Promise.all([
-      data.set(`user_${req.user.id}:conv_${conv}`, {
-        id: conv,
-        title: user.name,
-      }),
-      data.set(`user_${user.id}:conv_${conv}`, {
-        id: conv,
-        title: req.user.name,
-      }),
+      data.set(
+        `user_${req.user.id}:conv_${conv}`,
+        {
+          conv,
+          user: req.user.id,
+          title: user.name,
+        },
+        { label1: `conv_${conv}:user_${req.user.id}` }
+      ),
+      data.set(
+        `user_${user.id}:conv_${conv}`,
+        {
+          conv,
+          user: user.id,
+          title: req.user.name,
+        },
+        { label1: `conv_${conv}:user_${user.id}` }
+      ),
     ]);
   }
 
@@ -68,15 +77,22 @@ api.post("/messages", async (req, res) => {
     conv,
   };
 
+  const { items: userConversations } = await data.getByLabel(
+    "label1",
+    `conv_${conv}:user_*`
+  );
+
   await Promise.all([
     data.set(`conv_${conv}:msg_${message.id}`, message),
-    data.set(`conversation:${conv}`, {
-      last: req.body.text,
-    }),
+    ...userConversations.map(({ value }) =>
+      data.set(`user_${value.user}:conv_${value.conv}`, {
+        last: req.body.text,
+      })
+    ),
   ]);
 
   const [messages, conversations] = await Promise.all([
-    data.get(`conv_${conv}:*`),
+    data.get(`conv_${conv}:msg_*`),
     data.get(`user_${req.user.id}:conv_*`),
   ]);
 

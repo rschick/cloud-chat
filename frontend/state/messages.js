@@ -1,4 +1,6 @@
-import { proxy, subscribe } from "valtio";
+import { proxy } from "valtio";
+
+import events from "@events/hub";
 
 import auth from "./auth";
 
@@ -13,14 +15,19 @@ class Messages {
   selectConversation(id) {
     this.selectedConversationId = id;
     this.selectedConversation = this.conversations.find(
-      (conv) => conv.value.id === id
+      (conv) => conv.value.conv === id
     );
+
+    events.emit("conversation.selected", id);
   }
 
   newConversation(userId) {
     this.selectedConversationId = undefined;
     this.selectedConversation = undefined;
     this.selectedUserId = userId;
+    this.messages = [];
+
+    events.emit("user.selected", [userId]);
   }
 
   start() {
@@ -43,7 +50,7 @@ class Messages {
 
   updateLastMessage(id, text) {
     const conversation = this.conversations.find(
-      (conv) => conv.value.id === id
+      (conv) => conv.value.conv === id
     );
     if (!conversation) {
       console.warn("updateLastMessage(): missing conversation:", id);
@@ -73,19 +80,25 @@ class Messages {
     this.messages = messages.items;
     this.conversations = conversations.items;
 
-    if (this.messages.length > 0) {
+    this.selectedConversation =
+      this.selectedConversationId &&
+      this.conversations.find(
+        (conv) => conv.value.conv === this.selectedConversationId
+      );
+
+    if (this.selectedConversation && this.messages.length > 0) {
       this.updateLastMessage(
         conversationId,
         this.messages[this.messages.length - 1].value.text
       );
     }
 
-    this.selectedConversation = this.conversations.find(
-      (conv) => conv.value.id === this.selectedConversationId
-    );
-
-    if (!this.selectedConversationId && this.conversations[0]) {
-      this.selectedConversationId = this.conversations[0].value.id;
+    if (
+      !this.selectedUserId &&
+      !this.selectedConversationId &&
+      this.conversations[0]
+    ) {
+      this.selectedConversationId = this.conversations[0].value.conv;
       await this.fetch();
     }
   }

@@ -7,6 +7,7 @@
       "@icons/*": ["icons/*"],
       "@views/*": ["views/*"],
       "@layout/*": ["layout/*"],
+      "@events/*": ["events/*"],
       "@state/*": ["state/*"]
     }
   },

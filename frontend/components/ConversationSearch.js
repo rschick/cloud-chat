@@ -1,7 +1,10 @@
 import { useCallback, useState } from "react";
+
 import ConversationList from "@components/ConversationList";
 import SearchInput from "@components/SearchInput";
 import SearchResults from "@components/SearchResults";
+
+import messages from "@state/messages";
 
 export default function ConversationSearch() {
   const [query, setQuery] = useState("");
@@ -15,6 +18,16 @@ export default function ConversationSearch() {
     setSearching(value);
   }, []);
 
+  const handleConversationClick = useCallback((id) => {
+    messages.selectConversation(id);
+    setSearching(false);
+  }, []);
+
+  const handleUserClick = useCallback((id) => {
+    messages.newConversation(id);
+    setSearching(false);
+  }, []);
+
   return (
     <div className="p-2">
       <SearchInput
@@ -23,7 +36,12 @@ export default function ConversationSearch() {
         searching={searching}
         onSearchingChange={handleSearchingChange}
       />
-      {searching && <SearchResults />}
+      {searching && (
+        <SearchResults
+          onConversationClick={handleConversationClick}
+          onUserClick={handleUserClick}
+        />
+      )}
       {!searching && <ConversationList />}
     </div>
   );
