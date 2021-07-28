@@ -37,3 +37,6 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 - first use experience: search for users on map
 - small screen responsive layout
 - github actions, deploy to prod
+- refactor backend to use typescript and a data layer
+- handle errors when fetching data/state
+- go to user conversation if it exists when clicking on user

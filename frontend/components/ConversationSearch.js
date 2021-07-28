@@ -18,13 +18,13 @@ export default function ConversationSearch() {
     setSearching(value);
   }, []);
 
-  const handleConversationClick = useCallback((id) => {
-    messages.selectConversation(id);
+  const handleConversationClick = useCallback((item) => {
+    messages.selectConversation(item);
     setSearching(false);
   }, []);
 
-  const handleUserClick = useCallback((id) => {
-    messages.newConversation(id);
+  const handleUserClick = useCallback((item) => {
+    messages.selectUser(item);
     setSearching(false);
   }, []);
 

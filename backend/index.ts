@@ -1,3 +1,4 @@
+// @ts-ignore
 import { api, data } from "@serverless/cloud";
 import { auth } from "@serverless/cloud-auth0";
 import cors from "cors";
@@ -14,9 +15,13 @@ api.use(async (req, res, next) => {
   const id = uuidv5(sub, USER_UUID_NAMESPACE);
   let user = await data.get(`user:${id}`);
 
-  if (!user) {
-    user = { id, sub };
-    await data.set(`user:${id}`, user);
+  try {
+    if (!user) {
+      user = { id, sub };
+      await data.set(`user:${id}`, user);
+    }
+  } catch (error) {
+    throw error;
   }
 
   req.user = user;
@@ -66,6 +71,18 @@ api.post("/messages", async (req, res) => {
         },
         { label1: `conv_${conv}:user_${user.id}` }
       ),
+      data.set(`user_${user.id}_${req.user.id}:conv_${conv}`, {
+        conv,
+        user: user.id,
+        with: req.user.id,
+        title: req.user.name,
+      }),
+      data.set(`user_${req.user.id}_${user.id}:conv_${conv}`, {
+        conv,
+        user: req.user.id,
+        with: user.id,
+        title: user.name,
+      }),
     ]);
   }
 
@@ -100,7 +117,16 @@ api.post("/messages", async (req, res) => {
 });
 
 api.get("/conversations", async (req, res) => {
-  const conversations = await data.get(`user_${req.user.id}:conv_*`);
+  let conversations;
+
+  if (req.query.with) {
+    conversations = await data.get(
+      `user_${req.user.id}_${req.query.with}:conv_*`
+    );
+  } else {
+    conversations = await data.get(`user_${req.user.id}:conv_*`);
+  }
+
   res.json(conversations);
 });
 

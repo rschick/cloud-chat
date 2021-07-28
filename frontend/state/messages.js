@@ -12,23 +12,45 @@ class Messages {
   selectedConversationId;
   selectedUserId;
 
-  selectConversation(id) {
-    this.messages = [];
-    this.selectedConversationId = id;
-    this.selectedConversation = this.conversations.find(
-      (conv) => conv.value.conv === id
-    );
-    events.emit("conversation.selected", id);
-    this.fetch();
+  selectConversation({ conv }) {
+    if (conv !== this.selectedConversationId) {
+      this.messages = [];
+      this.selectedConversationId = conv;
+      this.selectedConversation = this.conversations.find(
+        (conv) => conv.value.conv === conv
+      );
+      this.fetch();
+    }
+    events.emit("conversation.selected", [conv]);
   }
 
-  newConversation(userId) {
+  async findUserConversation(id) {
+    const token = await auth.getToken();
+    const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_API}/conversations`);
+    url.searchParams.append("with", id);
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const { items } = await response.json();
+    return items.find((c) => c.value.user === auth.user.id);
+  }
+
+  async selectUser({ id, name }) {
+    const existing = await this.findUserConversation(id);
+    if (existing) {
+      this.selectConversation(existing.value);
+      return;
+    }
+
     this.selectedConversationId = undefined;
     this.selectedConversation = undefined;
-    this.selectedUserId = userId;
+    this.selectedUserId = id;
+    this.selectedUserName = name;
     this.messages = [];
 
-    events.emit("user.selected", [userId]);
+    events.emit("user.selected", [id]);
   }
 
   start() {
@@ -134,6 +156,11 @@ class Messages {
         conv,
         this.messages[this.messages.length - 1].value.text
       );
+    }
+
+    if (!this.selectedConversationId && this.conversations[0]) {
+      this.selectedConversationId = this.conversations[0].value.conv;
+      this.selectedUserId = undefined;
     }
   }
 }

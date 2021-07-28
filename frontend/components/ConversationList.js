@@ -35,8 +35,8 @@ function ConversationItem({ title, last, selected, onClick }) {
 export default function ConversationList() {
   const { conversations, selectedConversationId } = useSnapshot(messageState);
 
-  const handleItemClick = useCallback((id) => {
-    messageState.selectConversation(id);
+  const handleItemClick = useCallback((item) => {
+    messageState.selectConversation(item);
   }, []);
 
   return (
@@ -47,7 +47,7 @@ export default function ConversationList() {
             key={key}
             {...value}
             selected={value.conv === selectedConversationId}
-            onClick={() => handleItemClick(value.conv)}
+            onClick={() => handleItemClick(value)}
           />
         ))}
       </ul>

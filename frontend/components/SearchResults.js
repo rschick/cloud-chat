@@ -58,7 +58,7 @@ export default function SearchResults({
               <ConversationItem
                 key={key}
                 {...value}
-                onClick={() => onConversationClick(value.conv)}
+                onClick={() => onConversationClick(value)}
               />
             ))}
           </ul>
@@ -73,7 +73,7 @@ export default function SearchResults({
               <UserItem
                 key={key}
                 {...value}
-                onClick={() => onUserClick(value.id)}
+                onClick={() => onUserClick(value)}
               />
             ))}
           </ul>

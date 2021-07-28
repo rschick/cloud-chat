@@ -19,7 +19,7 @@ export default function MessageInput() {
     [message]
   );
 
-  const handleStartConversation = useCallback((id) => {
+  const handleStartConversation = useCallback(() => {
     input.current.focus();
   }, []);
 
