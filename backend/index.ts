@@ -2,7 +2,6 @@
 import { api, data } from "@serverless/cloud";
 import { auth } from "@serverless/cloud-auth0";
 import { geo } from "@serverless/cloud-geo";
-import { GeoPoint } from "@serverless/cloud-geo/types";
 import cors from "cors";
 import ksuid from "ksuid";
 import { v5 as uuidv5 } from "uuid";
@@ -155,11 +154,11 @@ api.put("/me", async (req, res) => {
 
 api.get("/users", async (req, res) => {
   if (req.query["sw.lat"]) {
-    const sw: GeoPoint = {
+    const sw = {
       latitude: Number.parseFloat(req.query["sw.lat"]),
       longitude: Number.parseFloat(req.query["sw.lon"]),
     };
-    const ne: GeoPoint = {
+    const ne = {
       latitude: Number.parseFloat(req.query["ne.lat"]),
       longitude: Number.parseFloat(req.query["ne.lon"]),
     };
@@ -192,14 +191,27 @@ api.get("/users", async (req, res) => {
   }
 
   if (req.query["center.lat"]) {
-    const center: GeoPoint = {
+    const center = {
       latitude: Number.parseFloat(req.query["center.lat"]),
       longitude: Number.parseFloat(req.query["center.lon"]),
     };
     const radius = Number.parseFloat(req.query.radius);
     const covering = geo.coverCircle(center, radius);
+    const ranges = covering.getGeoHashRanges(2);
+
+    console.log(
+      JSON.stringify(
+        ranges.map(
+          (range) =>
+            `${range.rangeMin.toString(10)}-${range.rangeMax.toString(10)}`
+        ),
+        null,
+        2
+      )
+    );
+
     const results = await Promise.all(
-      covering.getGeoHashRanges(2).map((range) => {
+      ranges.map((range) => {
         return data.getByLabel(
           "label1",
           `users:` +

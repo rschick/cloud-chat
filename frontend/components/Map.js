@@ -8,6 +8,7 @@ import {
   useMapEvents,
   Circle,
 } from "react-leaflet";
+import { point } from "leaflet";
 
 function ConvertBounds(leafletBounds) {
   const sw = leafletBounds.getSouthWest();
@@ -60,7 +61,11 @@ const fillBlueOptions = { fillColor: "blue" };
 function SearchCircle({ radius }) {
   const map = useMap();
 
-  console.log(radius);
+  useEffect(() => {
+    const center = map.getCenter();
+    const bounds = center.toBounds(radius);
+    map.flyToBounds(bounds, { padding: point(50, 50) });
+  }, [map, radius]);
 
   return (
     <Circle

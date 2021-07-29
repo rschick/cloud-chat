@@ -31,10 +31,6 @@ export default function ConversationSearch() {
     setQuery("");
   }, []);
 
-  useEffect(() => {
-    users.fetch();
-  }, [query]);
-
   return (
     <div className="p-2">
       <SearchInput

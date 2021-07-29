@@ -1,4 +1,5 @@
 import { proxy } from "valtio";
+import { debounce } from "lodash";
 
 import auth from "./auth";
 
@@ -8,17 +9,21 @@ class Users {
   center;
   radius;
 
+  fetch = debounce(this.fetchInternal, 1000);
+
   setSearchBounds(bounds) {
     this.bounds = bounds;
+    this.fetch();
   }
 
   setSearchRadius(center, radius) {
     this.center = center;
     this.radius = radius;
     this.bounds = undefined;
+    this.fetch();
   }
 
-  async fetch() {
+  async fetchInternal() {
     const token = await auth.getToken();
     const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_API}/users`);
     if (this.bounds?.sw) {

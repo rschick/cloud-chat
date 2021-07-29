@@ -12,8 +12,8 @@ export class Covering {
     const ranges: GeohashRange[] = [];
     this.cellIds.forEach((outerRange) => {
       const hashRange = new GeohashRange(
-        outerRange.rangeMin().id,
-        outerRange.rangeMax().id
+        outerRange.rangeMin().id.toUnsigned(),
+        outerRange.rangeMax().id.toUnsigned()
       );
       ranges.push(...hashRange.trySplit(hashKeyLength));
     });

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSnapshot } from "valtio";
+import { Form } from "react-bootstrap";
 import dynamic from "next/dynamic";
 import users from "@state/users";
 import auth from "@state/auth";
-import { Form } from "react-bootstrap";
 
 const Map = dynamic(() => import("@components/Map"), { ssr: false });
 
@@ -35,7 +35,6 @@ export default function UserMap() {
   }, []);
 
   useEffect(() => {
-    console.log(center, searchRadius);
     if (center && searchRadius) {
       users.setSearchRadius(center, searchRadius);
     }
@@ -58,7 +57,7 @@ export default function UserMap() {
         value={searchRadius}
         onChange={handleSearchRadiusChange}
         min={10000}
-        max={200000}
+        max={5000000}
         step={10000}
       />
     </>
