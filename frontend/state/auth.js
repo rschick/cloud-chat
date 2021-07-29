@@ -87,6 +87,7 @@ class Auth {
     if (!identity) {
       return;
     }
+    const position = await this.getPosition();
     const token = await this.getToken();
     const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/me`, {
       method: "PUT",
@@ -94,12 +95,34 @@ class Auth {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(identity),
+      body: JSON.stringify({
+        ...identity,
+        lat: position.latitude,
+        lon: position.longitude,
+      }),
     });
 
     const user = await response.json();
 
     return user;
+  }
+
+  getPosition() {
+    return new Promise((resolve, reject) => {
+      if (!"geolocation" in navigator) {
+        reject("geolocation not supported");
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { coords } = position;
+          resolve(coords);
+        },
+        (error) => {
+          reject(`Geolocation error(${error.code}): ${error.message}`);
+        }
+      );
+    });
   }
 }
 

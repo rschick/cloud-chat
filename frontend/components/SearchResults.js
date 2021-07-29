@@ -4,6 +4,8 @@ import messages from "@state/messages";
 import users from "@state/users";
 import clsx from "clsx";
 
+import UserMap from "@components/UserMap";
+
 function UserItem({ name, onClick }) {
   return (
     <a
@@ -79,6 +81,8 @@ export default function SearchResults({
           </ul>
         </div>
       )}
+
+      <UserMap />
     </div>
   );
 }

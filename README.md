@@ -20,9 +20,11 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 
 # TODO
 
+- get user location and save to profile
+- display users on a map
+
 - list users and start a conversation
 - find users by location
-- display users on a map
 - keep track of and show users that are "online"
 - edit your user profile
 - display user avatar in conversation list
@@ -37,6 +39,5 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 - first use experience: search for users on map
 - small screen responsive layout
 - github actions, deploy to prod
-- refactor backend to use typescript and a data layer
+- refactor backend to add types and a data layer
 - handle errors when fetching data/state
-- go to user conversation if it exists when clicking on user

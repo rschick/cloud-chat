@@ -17,7 +17,13 @@ class Messages {
       this.messages = [];
       this.selectedConversationId = conv;
       this.selectedConversation = this.conversations.find(
-        (conv) => conv.value.conv === conv
+        (item) => item.value.conv === conv
+      );
+      this.selectedUserId = undefined;
+      this.selectedUserName = undefined;
+
+      this.conversations = this.conversations.filter(
+        (c) => c.value.conv !== "new-conversation"
       );
       this.fetch();
     }
@@ -44,11 +50,25 @@ class Messages {
       return;
     }
 
-    this.selectedConversationId = undefined;
-    this.selectedConversation = undefined;
+    this.selectedConversationId = "new-conversation";
+    this.selectedConversation = {
+      key: "new-conversation",
+      value: {
+        title: name,
+        conv: "new-conversation",
+        last: "New conversation",
+      },
+    };
+
     this.selectedUserId = id;
     this.selectedUserName = name;
     this.messages = [];
+
+    const conversations = this.conversations.filter(
+      (c) => c.value.conv !== "new-conversation"
+    );
+
+    this.conversations = [this.selectedConversation, ...conversations];
 
     events.emit("user.selected", [id]);
   }
@@ -116,6 +136,19 @@ class Messages {
       );
     }
 
+    if (this.selectedUserId) {
+      this.selectedConversationId = "new-conversation";
+      this.selectedConversation = {
+        key: "new-conversation",
+        value: {
+          title: this.selectedUserName,
+          conv: "new-conversation",
+          last: "New conversation",
+        },
+      };
+      this.conversations = [this.selectedConversation, ...this.conversations];
+    }
+
     if (
       !this.selectedUserId &&
       !this.selectedConversationId &&
@@ -147,7 +180,7 @@ class Messages {
       }
     );
 
-    const { messages, conversations } = await response.json();
+    const { conv: newConvId, messages, conversations } = await response.json();
     this.messages = messages.items;
     this.conversations = conversations.items;
 
@@ -158,10 +191,8 @@ class Messages {
       );
     }
 
-    if (!this.selectedConversationId && this.conversations[0]) {
-      this.selectedConversationId = this.conversations[0].value.conv;
-      this.selectedUserId = undefined;
-    }
+    this.selectedConversationId = newConvId;
+    this.selectedUserId = undefined;
   }
 }
 

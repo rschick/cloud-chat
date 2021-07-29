@@ -1,6 +1,8 @@
 // @ts-ignore
 import { api, data } from "@serverless/cloud";
 import { auth } from "@serverless/cloud-auth0";
+import { geo } from "@serverless/cloud-geo";
+import { GeoPoint } from "@serverless/cloud-geo/types";
 import cors from "cors";
 import ksuid from "ksuid";
 import { v5 as uuidv5 } from "uuid";
@@ -8,6 +10,12 @@ import { v5 as uuidv5 } from "uuid";
 const USER_UUID_NAMESPACE = "9738E54D-3350-402B-9849-35F0ECEB772C";
 
 api.use(cors());
+
+api.get("/hash", async (req, res) => {
+  const geohash = geo.hash(req.query.lat, req.query.lon);
+  res.json({ geohash });
+});
+
 api.use(auth());
 
 api.use(async (req, res, next) => {
@@ -46,7 +54,7 @@ api.get("/state", async (req, res) => {
 api.post("/messages", async (req, res) => {
   let conv = req.body.conv;
 
-  if (!conv) {
+  if (!conv || conv === "new-conversation") {
     // Start a new conversation
     const userId = req.body.userId;
     const user = await data.get(`user:${userId}`);
@@ -113,7 +121,7 @@ api.post("/messages", async (req, res) => {
     data.get(`user_${req.user.id}:conv_*`),
   ]);
 
-  res.json({ messages, conversations });
+  res.json({ conv, messages, conversations });
 });
 
 api.get("/conversations", async (req, res) => {
@@ -131,15 +139,70 @@ api.get("/conversations", async (req, res) => {
 });
 
 api.put("/me", async (req, res) => {
-  await data.set(`user:${req.user.id}`, {
-    ...req.body,
-    id: req.user.id,
-  });
+  const geohash = geo.hash(req.body.lat, req.body.lon);
+  await data.set(
+    `user:${req.user.id}`,
+    {
+      ...req.body,
+      id: req.user.id,
+      geohash,
+    },
+    { label1: `users:geo_${geohash}` }
+  );
   const user = await data.get(`user:${req.user.id}`);
   res.json(user);
 });
 
 api.get("/users", async (req, res) => {
-  const users = await data.get("user:*");
+  const { geohash } = req.user;
+  // const users = await data.get("user:*");
+  const prefix = geohash.substr(0, 3);
+
+  if (req.query["sw.lat"]) {
+    const sw: GeoPoint = {
+      latitude: Number.parseFloat(req.query["sw.lat"]),
+      longitude: Number.parseFloat(req.query["sw.lon"]),
+    };
+    const ne: GeoPoint = {
+      latitude: Number.parseFloat(req.query["ne.lat"]),
+      longitude: Number.parseFloat(req.query["ne.lon"]),
+    };
+
+    console.log(sw, ne);
+
+    const rect = geo.rect(sw, ne);
+    const covering = geo.cover(rect);
+
+    console.log(
+      covering.getGeoHashRanges(2).map((range) => ({
+        min: range.rangeMin.toString(10),
+        max: range.rangeMax.toString(10),
+      }))
+    );
+
+    const results = await Promise.all(
+      covering.getGeoHashRanges(2).map((range) => {
+        return data.getByLabel(
+          "label1",
+          `users:` +
+            `geo_${range.rangeMin.toString(10)}|` +
+            `geo_${range.rangeMax.toString(10)}`
+        );
+      })
+    );
+
+    const items = [];
+    for (var result of results) {
+      items.push(
+        ...result.items.filter(({ value }) => {
+          return rect.containsLL(geo.point(value.lat, value.lon));
+        })
+      );
+    }
+
+    res.json({ items });
+  }
+
+  const users = await data.getByLabel("label1", `users:geo_${prefix}*`);
   res.json(users);
 });

@@ -3,10 +3,13 @@
   "type": "module",
   "dependencies": {
     "@serverless/cloud-auth0": "file:./packages/cloud-auth0",
+    "@serverless/cloud-geo": "file:./packages/cloud-geo",
     "cors": "^2.8.5",
     "express-jwt": "^6.0.0",
     "jwks-rsa": "^2.0.4",
     "ksuid": "^2.0.0",
+    "long": "^4.0.0",
+    "nodes2ts": "^2.0.0",
     "uuid": "^8.3.2"
   }
 }

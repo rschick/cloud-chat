@@ -10,11 +10,9 @@ import Sidebar from "@layout/Sidebar";
 import FullPageView from "@layout/FullPageView";
 
 import messages from "@state/messages";
-import users from "@state/users";
 
 export default function Home() {
   useEffect(() => messages.start(), []);
-  useEffect(() => users.fetch(), []);
 
   return (
     <FullPageView>
