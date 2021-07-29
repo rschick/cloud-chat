@@ -154,10 +154,6 @@ api.put("/me", async (req, res) => {
 });
 
 api.get("/users", async (req, res) => {
-  const { geohash } = req.user;
-  // const users = await data.get("user:*");
-  const prefix = geohash.substr(0, 3);
-
   if (req.query["sw.lat"]) {
     const sw: GeoPoint = {
       latitude: Number.parseFloat(req.query["sw.lat"]),
@@ -168,17 +164,8 @@ api.get("/users", async (req, res) => {
       longitude: Number.parseFloat(req.query["ne.lon"]),
     };
 
-    console.log(sw, ne);
-
     const rect = geo.rect(sw, ne);
-    const covering = geo.cover(rect);
-
-    console.log(
-      covering.getGeoHashRanges(2).map((range) => ({
-        min: range.rangeMin.toString(10),
-        max: range.rangeMax.toString(10),
-      }))
-    );
+    const covering = geo.coverRect(rect);
 
     const results = await Promise.all(
       covering.getGeoHashRanges(2).map((range) => {
@@ -201,8 +188,43 @@ api.get("/users", async (req, res) => {
     }
 
     res.json({ items });
+    return;
   }
 
-  const users = await data.getByLabel("label1", `users:geo_${prefix}*`);
+  if (req.query["center.lat"]) {
+    const center: GeoPoint = {
+      latitude: Number.parseFloat(req.query["center.lat"]),
+      longitude: Number.parseFloat(req.query["center.lon"]),
+    };
+    const radius = Number.parseFloat(req.query.radius);
+    const covering = geo.coverCircle(center, radius);
+    const results = await Promise.all(
+      covering.getGeoHashRanges(2).map((range) => {
+        return data.getByLabel(
+          "label1",
+          `users:` +
+            `geo_${range.rangeMin.toString(10)}|` +
+            `geo_${range.rangeMax.toString(10)}`
+        );
+      })
+    );
+
+    const items = [];
+    for (var result of results) {
+      items.push(
+        ...result.items.filter(({ value }) =>
+          geo.pointInCircle(
+            { latitude: value.lat, longitude: value.lon },
+            center,
+            radius
+          )
+        )
+      );
+    }
+    res.json({ items });
+    return;
+  }
+
+  const users = await data.get("user:*");
   res.json(users);
 });

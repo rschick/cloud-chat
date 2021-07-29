@@ -4,7 +4,9 @@ import {
   TileLayer,
   Marker,
   Popup,
+  useMap,
   useMapEvents,
+  Circle,
 } from "react-leaflet";
 
 function ConvertBounds(leafletBounds) {
@@ -23,21 +25,50 @@ function ConvertBounds(leafletBounds) {
   };
 }
 
-function EventListener({ onBoundsChange = () => {} }) {
+function ConvertPoint(point) {
+  return {
+    lat: point.lat,
+    lon: point.lng,
+  };
+}
+
+function EventListener({
+  onBoundsChange = () => {},
+  onCenterChange = () => {},
+}) {
   const map = useMapEvents({
     move() {
       onBoundsChange(ConvertBounds(map.getBounds()));
+      onCenterChange(ConvertPoint(map.getCenter()));
     },
     zoom() {
       onBoundsChange(ConvertBounds(map.getBounds()));
+      onCenterChange(ConvertPoint(map.getCenter()));
     },
   });
 
   useEffect(() => {
     onBoundsChange(ConvertBounds(map.getBounds()));
-  }, [map, onBoundsChange]);
+    onCenterChange(ConvertPoint(map.getCenter()));
+  }, [map, onBoundsChange, onCenterChange]);
 
   return null;
+}
+
+const fillBlueOptions = { fillColor: "blue" };
+
+function SearchCircle({ radius }) {
+  const map = useMap();
+
+  console.log(radius);
+
+  return (
+    <Circle
+      center={map.getCenter()}
+      radius={radius}
+      pathOptions={fillBlueOptions}
+    />
+  );
 }
 
 export default function Map({
@@ -46,7 +77,9 @@ export default function Map({
   markers = [],
   lat = 0,
   lon = 0,
+  searchRadius = 100000,
   onBoundsChange = () => {},
+  onCenterChange = () => {},
 }) {
   const handleMarkerClick = useCallback((event) => {
     console.log(event);
@@ -68,7 +101,11 @@ export default function Map({
           <Popup>{text}</Popup>
         </Marker>
       ))}
-      <EventListener onBoundsChange={onBoundsChange} />
+      <EventListener
+        onBoundsChange={onBoundsChange}
+        onCenterChange={onCenterChange}
+      />
+      {searchRadius && <SearchCircle radius={searchRadius} />}
     </MapContainer>
   );
 }

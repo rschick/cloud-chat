@@ -51,11 +51,10 @@ export class S2Util {
     );
 
     const latForRadius =
-      radiusInMeter /
-      (centerLatLng.getEarthDistance(latReferenceLatLng) as any).toNumber();
+      radiusInMeter / centerLatLng.getEarthDistance(latReferenceLatLng);
+
     const lngForRadius =
-      radiusInMeter /
-      (centerLatLng.getEarthDistance(lngReferenceLatLng) as any).toNumber();
+      radiusInMeter / centerLatLng.getEarthDistance(lngReferenceLatLng);
 
     const minLatLng = S2LatLng.fromDegrees(
       centerPoint.latitude - latForRadius,

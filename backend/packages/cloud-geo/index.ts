@@ -1,10 +1,14 @@
-import { S2Cell, S2LatLng, S2RegionCoverer, S2LatLngRect } from "nodes2ts";
+import {
+  S2Cell,
+  S2LatLng,
+  S2Region,
+  S2RegionCoverer,
+  S2LatLngRect,
+} from "nodes2ts";
 
-import { GeoDataManager } from "./GeoDataManager";
-import { GeoDataManagerConfiguration } from "./GeoDataManagerConfiguration";
-import { GeoTableUtil } from "./util/GeoTableUtil";
 import { Covering } from "./model/Covering";
 import { S2Util } from "./s2/S2Util";
+import { GeoPoint } from "./types";
 
 function hash(lat, long) {
   const latLng = S2LatLng.fromDegrees(lat, long);
@@ -25,8 +29,19 @@ function hash(lat, long) {
   return result.toString(10);
 }
 
-function cover(s2rect) {
+function coverRect(s2rect: S2Region): Covering {
   return new Covering(new S2RegionCoverer().getCoveringCells(s2rect));
+}
+
+function coverCircle(center: GeoPoint, radius: number): Covering {
+  return new Covering(
+    new S2RegionCoverer().getCoveringCells(
+      S2Util.getBoundingLatLngRectFromQueryRadiusInput({
+        RadiusInMeter: radius,
+        CenterPoint: center,
+      })
+    )
+  );
 }
 
 function rect(sw, ne) {
@@ -39,11 +54,24 @@ function point(lat, lon) {
   return S2LatLng.fromDegrees(lat, lon);
 }
 
+function pointInCircle(
+  point: GeoPoint,
+  center: GeoPoint,
+  radius: number
+): boolean {
+  const centerLatLng = S2LatLng.fromDegrees(center.latitude, center.longitude);
+  const latLng: S2LatLng = S2LatLng.fromDegrees(
+    point.latitude,
+    point.longitude
+  );
+  return centerLatLng.getEarthDistance(latLng) <= radius;
+}
+
 export const geo = {
   hash,
-  cover,
+  coverCircle,
+  coverRect,
   rect,
   point,
+  pointInCircle,
 };
-
-export { GeoDataManager, GeoDataManagerConfiguration, GeoTableUtil };
