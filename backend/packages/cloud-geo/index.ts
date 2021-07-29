@@ -1,12 +1,12 @@
 import {
   S2Cell,
+  S2CellId,
   S2LatLng,
   S2Region,
   S2RegionCoverer,
   S2LatLngRect,
 } from "nodes2ts";
 
-import { Covering } from "./model/Covering";
 import { GeoPoint } from "./types";
 
 function hash(lat, long) {
@@ -22,8 +22,17 @@ function hash(lat, long) {
   return result.toString(10);
 }
 
-function coverRect(s2rect: S2Region): Covering {
-  return new Covering(new S2RegionCoverer().getCoveringCells(s2rect));
+function coverRect(s2rect: S2Region): S2CellId[] {
+  return new S2RegionCoverer().getCoveringCells(s2rect);
+}
+
+function coverCircle(center: GeoPoint, radius: number): S2CellId[] {
+  return new S2RegionCoverer().getCoveringCells(
+    getBoundingRectForCircle({
+      radius,
+      center,
+    })
+  );
 }
 
 function getBoundingRectForCircle({
@@ -62,17 +71,6 @@ function getBoundingRectForCircle({
   );
 
   return S2LatLngRect.fromLatLng(minLatLng, maxLatLng);
-}
-
-function coverCircle(center: GeoPoint, radius: number): Covering {
-  return new Covering(
-    new S2RegionCoverer().getCoveringCells(
-      getBoundingRectForCircle({
-        radius,
-        center,
-      })
-    )
-  );
 }
 
 function rect(sw, ne) {

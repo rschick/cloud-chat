@@ -164,15 +164,15 @@ api.get("/users", async (req, res) => {
     };
 
     const rect = geo.rect(sw, ne);
-    const covering = geo.coverRect(rect);
+    const cells = geo.coverRect(rect);
 
     const results = await Promise.all(
-      covering.getGeoHashRanges(2).map((range) => {
+      cells.map((cell) => {
         return data.getByLabel(
           "label1",
           `users:` +
-            `geo_${range.rangeMin.toString(10)}|` +
-            `geo_${range.rangeMax.toString(10)}`
+            `geo_${cell.rangeMin().id.toUnsigned().toString(10)}|` +
+            `geo_${cell.rangeMax().id.toUnsigned().toString(10)}`
         );
       })
     );
@@ -196,27 +196,15 @@ api.get("/users", async (req, res) => {
       longitude: Number.parseFloat(req.query["center.lon"]),
     };
     const radius = Number.parseFloat(req.query.radius);
-    const covering = geo.coverCircle(center, radius);
-    const ranges = covering.getGeoHashRanges(2);
-
-    console.log(
-      JSON.stringify(
-        ranges.map(
-          (range) =>
-            `${range.rangeMin.toString(10)}-${range.rangeMax.toString(10)}`
-        ),
-        null,
-        2
-      )
-    );
+    const cells = geo.coverCircle(center, radius);
 
     const results = await Promise.all(
-      ranges.map((range) => {
+      cells.map((cell) => {
         return data.getByLabel(
           "label1",
           `users:` +
-            `geo_${range.rangeMin.toString(10)}|` +
-            `geo_${range.rangeMax.toString(10)}`
+            `geo_${cell.rangeMin().id.toUnsigned().toString(10)}|` +
+            `geo_${cell.rangeMax().id.toUnsigned().toString(10)}`
         );
       })
     );
