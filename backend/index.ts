@@ -171,8 +171,8 @@ api.get("/users", async (req, res) => {
         return data.getByLabel(
           "label1",
           `users:` +
-            `geo_${cell.rangeMin().id.toUnsigned().toString(10)}|` +
-            `geo_${cell.rangeMax().id.toUnsigned().toString(10)}`
+            `geo_${cell.rangeMin().toToken()}|` +
+            `geo_${cell.rangeMax().toToken()}`
         );
       })
     );
@@ -203,8 +203,8 @@ api.get("/users", async (req, res) => {
         return data.getByLabel(
           "label1",
           `users:` +
-            `geo_${cell.rangeMin().id.toUnsigned().toString(10)}|` +
-            `geo_${cell.rangeMax().id.toUnsigned().toString(10)}`
+            `geo_${cell.rangeMin().toToken()}|` +
+            `geo_${cell.rangeMax().toToken()}`
         );
       })
     );

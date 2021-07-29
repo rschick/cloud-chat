@@ -1,14 +1,13 @@
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
-  useMap,
   useMapEvents,
-  Circle,
 } from "react-leaflet";
-import { point } from "leaflet";
+
+const noop = () => {};
 
 function ConvertBounds(leafletBounds) {
   const sw = leafletBounds.getSouthWest();
@@ -26,54 +25,21 @@ function ConvertBounds(leafletBounds) {
   };
 }
 
-function ConvertPoint(point) {
-  return {
-    lat: point.lat,
-    lon: point.lng,
-  };
-}
-
-function EventListener({
-  onBoundsChange = () => {},
-  onCenterChange = () => {},
-}) {
+function EventListener({ onBoundsChange = noop }) {
   const map = useMapEvents({
     move() {
       onBoundsChange(ConvertBounds(map.getBounds()));
-      onCenterChange(ConvertPoint(map.getCenter()));
     },
     zoom() {
       onBoundsChange(ConvertBounds(map.getBounds()));
-      onCenterChange(ConvertPoint(map.getCenter()));
     },
   });
 
   useEffect(() => {
     onBoundsChange(ConvertBounds(map.getBounds()));
-    onCenterChange(ConvertPoint(map.getCenter()));
-  }, [map, onBoundsChange, onCenterChange]);
+  }, [map, onBoundsChange]);
 
   return null;
-}
-
-const fillBlueOptions = { fillColor: "blue" };
-
-function SearchCircle({ radius }) {
-  const map = useMap();
-
-  useEffect(() => {
-    const center = map.getCenter();
-    const bounds = center.toBounds(radius);
-    map.flyToBounds(bounds, { padding: point(50, 50) });
-  }, [map, radius]);
-
-  return (
-    <Circle
-      center={map.getCenter()}
-      radius={radius}
-      pathOptions={fillBlueOptions}
-    />
-  );
 }
 
 export default function Map({
@@ -82,14 +48,8 @@ export default function Map({
   markers = [],
   lat = 0,
   lon = 0,
-  searchRadius = 100000,
-  onBoundsChange = () => {},
-  onCenterChange = () => {},
+  onBoundsChange = noop,
 }) {
-  const handleMarkerClick = useCallback((event) => {
-    console.log(event);
-  }, []);
-
   return (
     <MapContainer
       style={{ height }}
@@ -102,15 +62,11 @@ export default function Map({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       {markers.map(({ key, lat, lon, text }) => (
-        <Marker key={key} position={[lat, lon]} onClick={handleMarkerClick}>
+        <Marker key={key} position={[lat, lon]}>
           <Popup>{text}</Popup>
         </Marker>
       ))}
-      <EventListener
-        onBoundsChange={onBoundsChange}
-        onCenterChange={onCenterChange}
-      />
-      {searchRadius && <SearchCircle radius={searchRadius} />}
+      <EventListener onBoundsChange={onBoundsChange} />
     </MapContainer>
   );
 }

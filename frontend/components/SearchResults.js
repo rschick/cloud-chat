@@ -1,10 +1,9 @@
-import { useCallback } from "react";
 import { useSnapshot } from "valtio";
 import messages from "@state/messages";
 import users from "@state/users";
 import clsx from "clsx";
 
-import UserMap from "@components/UserMap";
+const noop = () => {};
 
 function UserItem({ name, onClick }) {
   return (
@@ -44,8 +43,8 @@ function ConversationItem({ title, last, selected, onClick }) {
 }
 
 export default function SearchResults({
-  onConversationClick = () => {},
-  onUserClick = () => {},
+  onConversationClick = noop,
+  onUserClick = noop,
 }) {
   const { conversations } = useSnapshot(messages);
   const { items: userList } = useSnapshot(users);
@@ -67,9 +66,9 @@ export default function SearchResults({
         </div>
       )}
 
-      {userList.length > 0 && (
-        <div className="p-0 pt-4">
-          <h4>Users</h4>
+      <div className="p-0 pt-4">
+        <h4>Users nearby</h4>
+        {userList.length > 0 && (
           <ul className="list-group">
             {userList.map(({ key, value }) => (
               <UserItem
@@ -79,10 +78,8 @@ export default function SearchResults({
               />
             ))}
           </ul>
-        </div>
-      )}
-
-      <UserMap />
+        )}
+      </div>
     </div>
   );
 }

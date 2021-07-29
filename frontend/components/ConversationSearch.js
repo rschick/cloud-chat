@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import ConversationList from "@components/ConversationList";
 import SearchInput from "@components/SearchInput";
 import SearchResults from "@components/SearchResults";
+import UserMap from "@components/UserMap";
 
 import messages from "@state/messages";
 import users from "@state/users";
@@ -40,10 +41,13 @@ export default function ConversationSearch() {
         onSearchingChange={handleSearchingChange}
       />
       {searching && (
-        <SearchResults
-          onConversationClick={handleConversationClick}
-          onUserClick={handleUserClick}
-        />
+        <div className="mt-2">
+          <UserMap />
+          <SearchResults
+            onConversationClick={handleConversationClick}
+            onUserClick={handleUserClick}
+          />
+        </div>
       )}
       {!searching && <ConversationList />}
     </div>

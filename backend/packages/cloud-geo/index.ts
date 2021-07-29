@@ -13,13 +13,7 @@ function hash(lat, long) {
   const latLng = S2LatLng.fromDegrees(lat, long);
   const cell = S2Cell.fromLatLng(latLng);
   const cellId = cell.id;
-  const geohash = cellId.id.toUnsigned();
-  let length = 10;
-  const geohashString = geohash.toString(10);
-  const denominator = Math.pow(10, geohashString.length - length);
-  const result = geohash.divide(denominator);
-
-  return result.toString(10);
+  return cellId.toToken();
 }
 
 function coverRect(s2rect: S2Region): S2CellId[] {

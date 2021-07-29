@@ -20,11 +20,11 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 
 # TODO
 
+- add backend tests
+- comment code
+- update readme
 - get user location and save to profile
 - display users on a map
-
-- list users and start a conversation
-- find users by location
 - keep track of and show users that are "online"
 - edit your user profile
 - display user avatar in conversation list

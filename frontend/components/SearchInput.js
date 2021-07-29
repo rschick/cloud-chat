@@ -1,13 +1,15 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import InputGroup from "react-bootstrap/InputGroup";
 import Search from "@icons/Search";
 import Close from "@icons/Close";
 
+const noop = () => {};
+
 export default function SearchInput({
   value,
-  onChange = () => {},
+  onChange = noop,
   searching,
-  onSearchingChange = () => {},
+  onSearchingChange = noop,
 }) {
   const handleFocus = useCallback(() => {
     if (!searching) {

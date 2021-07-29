@@ -17,6 +17,7 @@ class Auth {
   isAuthenticated = false;
   isLoading = true;
   error;
+  position;
 
   async init() {
     if (typeof window === "undefined") {
@@ -27,6 +28,8 @@ class Auth {
     if (auth0) {
       return;
     }
+
+    this.watchPosition();
 
     auth0 = await createAuth0Client({
       domain: process.env.NEXT_PUBLIC_AUTH0_DOMAIN,
@@ -87,7 +90,6 @@ class Auth {
     if (!identity) {
       return;
     }
-    const position = await this.getPosition();
     const token = await this.getToken();
     const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/me`, {
       method: "PUT",
@@ -95,11 +97,7 @@ class Auth {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        ...identity,
-        lat: position.latitude,
-        lon: position.longitude,
-      }),
+      body: JSON.stringify(identity),
     });
 
     const user = await response.json();
@@ -107,22 +105,47 @@ class Auth {
     return user;
   }
 
-  getPosition() {
-    return new Promise((resolve, reject) => {
-      if (!"geolocation" in navigator) {
-        reject("geolocation not supported");
-      }
+  async updatePosition() {
+    const identity = await auth0.getUser();
+    if (!identity) {
+      return;
+    }
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { coords } = position;
-          resolve(coords);
-        },
-        (error) => {
-          reject(`Geolocation error(${error.code}): ${error.message}`);
-        }
-      );
+    const token = await this.getToken();
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/me`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(this.position),
     });
+
+    this.user = await response.json();
+  }
+
+  watchPosition() {
+    if (!"geolocation" in navigator) {
+      console.warn("geolocation not supported");
+      return;
+    }
+
+    navigator.geolocation.watchPosition(
+      this.geolocationSuccess.bind(this),
+      this.geolocationError.bind(this)
+    );
+  }
+
+  geolocationSuccess({ coords }) {
+    this.position = {
+      lat: coords.latitude,
+      lon: coords.longitude,
+    };
+    this.updatePosition();
+  }
+
+  geolocationError(error) {
+    console.log("geolocationError", error);
   }
 }
 
