@@ -24,9 +24,9 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 - update readme
 - deploy to named stage
 - github actions, deploy to prod
-- refactor backend to add types and a data layer
 - small screen responsive layout
 
+- frontend tests
 - sort conversations by most recent activity
 - display user avatar in conversation list
 - keep track of and show users that are "online"

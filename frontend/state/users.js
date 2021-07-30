@@ -1,5 +1,6 @@
 import { proxy } from "valtio";
 import { debounce } from "lodash";
+import LRUCache from "lru-cache";
 
 import auth from "./auth";
 
@@ -8,7 +9,7 @@ class Users {
   bounds;
   center;
   radius;
-  userCache = new Map();
+  userCache = new LRUCache({ max: 100, maxAge: 60 * 1000 });
 
   fetch = debounce(this.fetchInternal, 1000);
 

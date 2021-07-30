@@ -2,9 +2,8 @@
 import { api } from "@serverless/cloud";
 import { auth } from "./middleware/auth";
 import { user } from "./middleware/user";
-import data from "./lib/data";
 import cors from "cors";
-import { GeoPoint } from "./lib/geo";
+import data from "./lib/data";
 
 api.use(cors());
 api.use(auth());
@@ -56,7 +55,7 @@ api.get("/users", async (req, res) => {
   }
 
   if (req.query["center.lat"]) {
-    const center: GeoPoint = {
+    const center = {
       lat: Number.parseFloat(req.query["center.lat"]),
       lon: Number.parseFloat(req.query["center.lon"]),
     };
