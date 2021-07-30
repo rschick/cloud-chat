@@ -9,12 +9,6 @@ import { v5 as uuidv5 } from "uuid";
 const USER_UUID_NAMESPACE = "9738E54D-3350-402B-9849-35F0ECEB772C";
 
 api.use(cors());
-
-api.get("/hash", async (req, res) => {
-  const geohash = geo.hash(req.query.lat, req.query.lon);
-  res.json({ geohash });
-});
-
 api.use(auth());
 
 api.use(async (req, res, next) => {
@@ -34,11 +28,6 @@ api.use(async (req, res, next) => {
   req.user = user;
 
   return next();
-});
-
-api.get("/messages", async (req, res) => {
-  const messages = await data.get(`conv_${req.query.conv}:msg_*`);
-  res.json(messages);
 });
 
 api.get("/state", async (req, res) => {

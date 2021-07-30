@@ -25,7 +25,7 @@ class Messages {
       this.conversations = this.conversations.filter(
         (c) => c.value.conv !== "new-conversation"
       );
-      this.fetch();
+      // this.fetch();
     }
     events.emit("conversation.selected", [conv]);
   }
