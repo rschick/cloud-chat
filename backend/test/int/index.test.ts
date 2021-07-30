@@ -12,26 +12,20 @@ beforeAll(async () => {
   });
 });
 
-async function deleteMessage(to, { id, from, conv }) {
-  await Promise.all([
-    data.remove(`conv_${conv}:msg_${id}`),
-    data.remove(`user_${to}_${from}:conv_${conv}`),
-    data.remove(`user_${from}_${to}:conv_${conv}`),
-  ]);
+async function deleteMessage({ id, convId }) {
+  await data.remove(`conv_${convId}:msg_${id}`);
 }
 
-async function deleteConversation({ conv, user }) {
-  const { items: messages } = await data.get(`conv_${conv}:msg_*`);
-  await Promise.all(messages.map((item) => deleteMessage(user, item.value)));
-  await data.remove(`user_${user}:conv_${conv}`);
+async function deleteConversation({ convId, userId }) {
+  const { items: messages } = await data.get(`conv_${convId}:msg_*`);
+  await Promise.all(messages.map(({ value }) => deleteMessage(value)));
+  await data.remove(`user_${userId}:conv_${convId}`);
 }
 
-async function deleteUser(user) {
-  await data.remove(`user:${user}`);
-  const { items: conversations } = await data.get(`user_${user}:conv_*`);
-  await Promise.all(
-    conversations.map((item) => deleteConversation(item.value))
-  );
+async function deleteUser(userId) {
+  await data.remove(`user:${userId}`);
+  const { items } = await data.get(`user_${userId}:conv_*`);
+  await Promise.all(items.map(({ value }) => deleteConversation(value)));
 }
 
 afterAll(async () => {
@@ -60,6 +54,22 @@ test("should create user and update profile", async () => {
   });
 });
 
+test("should get a user by id", async () => {
+  const { body } = await api
+    .get("/users/b23b3aeb-15aa-5527-9e4f-7094fe053410")
+    .invoke();
+
+  expect(body).toEqual({
+    geohash: "5486f83fc32b3bcf",
+    id: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
+    lat: 49.7041763,
+    lon: -123.15608540000001,
+    name: "Test User",
+    other_property: "something",
+    sub: "cloud-auth0-mock|123456789",
+  });
+});
+
 test("should get no messages or conversations", async () => {
   const { body } = await api.get("/state").invoke();
 
@@ -69,23 +79,62 @@ test("should get no messages or conversations", async () => {
   });
 });
 
-test("should start a new conversation", async () => {
-  const { body } = await api.post("/messages").invoke({
-    userId: "7215ce0f-20a3-4b56-a0fb-00161f42f4f8",
-    text: "Hi!",
+test("should create a new conversation", async () => {
+  const { body } = await api.post("/conversations").invoke({
+    userIds: [
+      "7215ce0f-20a3-4b56-a0fb-00161f42f4f8",
+      "b23b3aeb-15aa-5527-9e4f-7094fe053410",
+    ],
   });
 
   expect(body).toEqual({
-    conv: expect.any(String),
+    convId: expect.any(String),
     conversations: {
       items: [
         {
           key: expect.stringMatching(/user_.+\:conv_.*/),
           value: {
-            conv: expect.any(String),
+            convId: expect.any(String),
+            userId: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
+            userIds: [
+              "7215ce0f-20a3-4b56-a0fb-00161f42f4f8",
+              "b23b3aeb-15aa-5527-9e4f-7094fe053410",
+            ],
+          },
+        },
+      ],
+    },
+    messages: {
+      items: [],
+    },
+  });
+});
+
+test("should send a message", async () => {
+  const {
+    body: { conversations },
+  } = await api.get("/state").invoke();
+  const convId = conversations.items[0].value.convId;
+
+  const { body } = await api.post("/messages").invoke({
+    convId,
+    text: "Hi!",
+  });
+
+  expect(body).toEqual({
+    convId: expect.any(String),
+    conversations: {
+      items: [
+        {
+          key: expect.stringMatching(/user_.+\:conv_.*/),
+          value: {
+            convId: expect.any(String),
             last: "Hi!",
-            title: "Another User",
-            user: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
+            userId: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
+            userIds: [
+              "7215ce0f-20a3-4b56-a0fb-00161f42f4f8",
+              "b23b3aeb-15aa-5527-9e4f-7094fe053410",
+            ],
           },
         },
       ],
@@ -95,7 +144,7 @@ test("should start a new conversation", async () => {
         {
           key: expect.stringMatching(/conv_.*\:msg_.*/),
           value: {
-            conv: expect.any(String),
+            convId: convId,
             from: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
             id: expect.any(String),
             text: "Hi!",
@@ -103,28 +152,6 @@ test("should start a new conversation", async () => {
         },
       ],
     },
-  });
-});
-
-test("should return conversations with a user", async () => {
-  const { body } = await api
-    .get("/conversations?with=7215ce0f-20a3-4b56-a0fb-00161f42f4f8")
-    .invoke();
-
-  expect(body).toEqual({
-    items: [
-      {
-        key: expect.stringMatching(
-          /user_b23b3aeb-15aa-5527-9e4f-7094fe053410_7215ce0f-20a3-4b56-a0fb-00161f42f4f8:conv_.+/
-        ),
-        value: {
-          conv: expect.any(String),
-          title: "Another User",
-          user: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
-          with: "7215ce0f-20a3-4b56-a0fb-00161f42f4f8",
-        },
-      },
-    ],
   });
 });
 

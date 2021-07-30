@@ -46,7 +46,7 @@ export default function ConversationList() {
           <ConversationItem
             key={key}
             {...value}
-            selected={value.conv === selectedConversationId}
+            selected={value.convId === selectedConversationId}
             onClick={() => handleItemClick(value)}
           />
         ))}

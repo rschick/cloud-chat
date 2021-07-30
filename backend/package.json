@@ -2,8 +2,6 @@
   "name": "cloud-chat",
   "type": "module",
   "dependencies": {
-    "@serverless/cloud-auth": "file:./packages/cloud-auth",
-    "@serverless/cloud-geo": "file:./packages/cloud-geo",
     "cors": "^2.8.5",
     "express-jwt": "^6.0.0",
     "jwks-rsa": "^2.0.4",

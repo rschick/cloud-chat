@@ -8,6 +8,7 @@ class Users {
   bounds;
   center;
   radius;
+  userCache = new Map();
 
   fetch = debounce(this.fetchInternal, 1000);
 
@@ -45,6 +46,24 @@ class Users {
 
     const { items } = await response.json();
     this.items = (items || []).filter((item) => item.value.id !== auth.user.id);
+  }
+
+  async getUser(id) {
+    if (!this.userCache.get(id)) {
+      const token = await auth.getToken();
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API}/users/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const user = await response.json();
+      this.userCache.set(id, user);
+    }
+    return this.userCache.get(id);
   }
 }
 

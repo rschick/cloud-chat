@@ -7,7 +7,15 @@ import {
   S2LatLngRect,
 } from "nodes2ts";
 
-import { GeoPoint } from "./types";
+export interface GeoPoint {
+  lat: number;
+  lon: number;
+}
+
+export interface Rect {
+  sw: GeoPoint;
+  ne: GeoPoint;
+}
 
 function hash(lat, long) {
   const latLng = S2LatLng.fromDegrees(lat, long);
@@ -16,8 +24,8 @@ function hash(lat, long) {
   return cellId.toToken();
 }
 
-function coverRect(s2rect: S2Region): S2CellId[] {
-  return new S2RegionCoverer().getCoveringCells(s2rect);
+function coverRegion(region: S2Region): S2CellId[] {
+  return new S2RegionCoverer().getCoveringCells(region);
 }
 
 function coverCircle(center: GeoPoint, radius: number): S2CellId[] {
@@ -36,17 +44,17 @@ function getBoundingRectForCircle({
   radius: number;
   center: GeoPoint;
 }): S2LatLngRect {
-  const centerLatLng = S2LatLng.fromDegrees(center.latitude, center.longitude);
+  const centerLatLng = S2LatLng.fromDegrees(center.lat, center.lon);
 
-  const latReferenceUnit = center.latitude > 0.0 ? -1.0 : 1.0;
+  const latReferenceUnit = center.lat > 0.0 ? -1.0 : 1.0;
   const latReferenceLatLng = S2LatLng.fromDegrees(
-    center.latitude + latReferenceUnit,
-    center.longitude
+    center.lat + latReferenceUnit,
+    center.lon
   );
-  const lngReferenceUnit = center.longitude > 0.0 ? -1.0 : 1.0;
+  const lngReferenceUnit = center.lon > 0.0 ? -1.0 : 1.0;
   const lngReferenceLatLng = S2LatLng.fromDegrees(
-    center.latitude,
-    center.longitude + lngReferenceUnit
+    center.lat,
+    center.lon + lngReferenceUnit
   );
 
   const latForRadius =
@@ -56,20 +64,20 @@ function getBoundingRectForCircle({
     radius / centerLatLng.getEarthDistance(lngReferenceLatLng);
 
   const minLatLng = S2LatLng.fromDegrees(
-    center.latitude - latForRadius,
-    center.longitude - lngForRadius
+    center.lat - latForRadius,
+    center.lon - lngForRadius
   );
   const maxLatLng = S2LatLng.fromDegrees(
-    center.latitude + latForRadius,
-    center.longitude + lngForRadius
+    center.lat + latForRadius,
+    center.lon + lngForRadius
   );
 
   return S2LatLngRect.fromLatLng(minLatLng, maxLatLng);
 }
 
-function rect(sw, ne) {
-  const minLatLng = S2LatLng.fromDegrees(sw.latitude, sw.longitude);
-  const maxLatLng = S2LatLng.fromDegrees(ne.latitude, ne.longitude);
+function region(rect: Rect) {
+  const minLatLng = S2LatLng.fromDegrees(rect.sw.lat, rect.sw.lon);
+  const maxLatLng = S2LatLng.fromDegrees(rect.ne.lat, rect.ne.lon);
   return S2LatLngRect.fromLatLng(minLatLng, maxLatLng);
 }
 
@@ -82,19 +90,16 @@ function pointInCircle(
   center: GeoPoint,
   radius: number
 ): boolean {
-  const centerLatLng = S2LatLng.fromDegrees(center.latitude, center.longitude);
-  const latLng: S2LatLng = S2LatLng.fromDegrees(
-    point.latitude,
-    point.longitude
-  );
+  const centerLatLng = S2LatLng.fromDegrees(center.lat, center.lon);
+  const latLng: S2LatLng = S2LatLng.fromDegrees(point.lat, point.lon);
   return centerLatLng.getEarthDistance(latLng) <= radius;
 }
 
 export const geo = {
   hash,
   coverCircle,
-  coverRect,
-  rect,
+  coverRegion,
+  region,
   point,
   pointInCircle,
 };

@@ -20,13 +20,14 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 
 # TODO
 
-- add backend tests
 - comment code
 - update readme
+- deploy to named stage
 - github actions, deploy to prod
+- refactor backend to add types and a data layer
+- small screen responsive layout
 
 - sort conversations by most recent activity
-- refactor backend to add types and a data layer
 - display user avatar in conversation list
 - keep track of and show users that are "online"
 - edit your user profile
@@ -37,8 +38,6 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 - search conversation messages
 - search user names
 - play sound when a message arrives
-- first use experience: search for users on map
-- small screen responsive layout
 - handle errors when fetching data/state
 - emoji picker
 - gify type image messages

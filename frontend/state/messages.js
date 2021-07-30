@@ -3,6 +3,7 @@ import { proxy } from "valtio";
 import events from "@events/hub";
 
 import auth from "./auth";
+import users from "./users";
 
 class Messages {
   messages = [];
@@ -12,35 +13,26 @@ class Messages {
   selectedConversationId;
   selectedUserId;
 
-  selectConversation({ conv }) {
-    if (conv !== this.selectedConversationId) {
+  selectConversation({ convId }) {
+    if (convId !== this.selectedConversationId) {
       this.messages = [];
-      this.selectedConversationId = conv;
+      this.selectedConversationId = convId;
       this.selectedConversation = this.conversations.find(
-        (item) => item.value.conv === conv
+        (item) => item.value.convId === convId
       );
       this.selectedUserId = undefined;
       this.selectedUserName = undefined;
 
       this.conversations = this.conversations.filter(
-        (c) => c.value.conv !== "new-conversation"
+        (c) => c.value.convId !== "new-conversation"
       );
       // this.fetch();
     }
-    events.emit("conversation.selected", [conv]);
+    events.emit("conversation.selected", [convId]);
   }
 
   async findUserConversation(id) {
-    const token = await auth.getToken();
-    const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_API}/conversations`);
-    url.searchParams.append("with", id);
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const { items } = await response.json();
-    return items.find((c) => c.value.user === auth.user.id);
+    return this.conversations.find((c) => c.value.userIds.includes(id));
   }
 
   async selectUser({ id, name }) {
@@ -55,7 +47,7 @@ class Messages {
       key: "new-conversation",
       value: {
         title: name,
-        conv: "new-conversation",
+        convId: "new-conversation",
         last: "New conversation",
       },
     };
@@ -65,7 +57,7 @@ class Messages {
     this.messages = [];
 
     const conversations = this.conversations.filter(
-      (c) => c.value.conv !== "new-conversation"
+      (c) => c.value.convId !== "new-conversation"
     );
 
     this.conversations = [this.selectedConversation, ...conversations];
@@ -91,17 +83,6 @@ class Messages {
     }
   }
 
-  updateLastMessage(id, text) {
-    const conversation = this.conversations.find(
-      (conv) => conv.value.conv === id
-    );
-    if (!conversation) {
-      console.warn("updateLastMessage(): missing conversation:", id);
-      return;
-    }
-    conversation.value.last = text;
-  }
-
   async fetch() {
     const conversationId = this.selectedConversationId;
     if (!conversationId) {
@@ -111,7 +92,7 @@ class Messages {
     const token = await auth.getToken();
     const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_API}/state`);
     if (conversationId) {
-      url.searchParams.append("conv", conversationId);
+      url.searchParams.append("convId", conversationId);
     }
     const response = await fetch(url, {
       headers: {
@@ -123,18 +104,13 @@ class Messages {
     this.messages = messages.items;
     this.conversations = conversations.items;
 
+    await this.updateConversationTitles();
+
     this.selectedConversation =
       this.selectedConversationId &&
       this.conversations.find(
-        (conv) => conv.value.conv === this.selectedConversationId
+        (conv) => conv.value.convId === this.selectedConversationId
       );
-
-    if (this.selectedConversation && this.messages.length > 0) {
-      this.updateLastMessage(
-        conversationId,
-        this.messages[this.messages.length - 1].value.text
-      );
-    }
 
     if (this.selectedUserId) {
       this.selectedConversationId = "new-conversation";
@@ -142,7 +118,7 @@ class Messages {
         key: "new-conversation",
         value: {
           title: this.selectedUserName,
-          conv: "new-conversation",
+          convId: "new-conversation",
           last: "New conversation",
         },
       };
@@ -154,14 +130,37 @@ class Messages {
       !this.selectedConversationId &&
       this.conversations[0]
     ) {
-      this.selectedConversationId = this.conversations[0].value.conv;
+      this.selectedConversationId = this.conversations[0].value.convId;
       await this.fetch();
     }
   }
 
+  async createConversation() {
+    const token = await auth.getToken();
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_API}/conversations`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userIds: [this.selectedUserId, auth.user.id],
+        }),
+      }
+    );
+
+    const { convId } = await response.json();
+
+    return convId;
+  }
+
   async send(text) {
-    const conv = this.selectedConversationId;
-    const userId = this.selectedUserId;
+    if (this.selectedConversationId === "new-conversation") {
+      this.selectedConversationId = await this.createConversation();
+    }
+
     const token = await auth.getToken();
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_API}/messages`,
@@ -172,27 +171,33 @@ class Messages {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          conv,
-          userId,
+          convId: this.selectedConversationId,
           text,
-          name: auth.user.name,
         }),
       }
     );
 
-    const { conv: newConvId, messages, conversations } = await response.json();
+    const { messages, conversations } = await response.json();
+
     this.messages = messages.items;
     this.conversations = conversations.items;
-
-    if (this.messages.length > 0) {
-      this.updateLastMessage(
-        conv,
-        this.messages[this.messages.length - 1].value.text
-      );
-    }
-
-    this.selectedConversationId = newConvId;
     this.selectedUserId = undefined;
+
+    await this.updateConversationTitles();
+  }
+
+  async getNames(userIds) {
+    const items = await Promise.all(userIds.map((id) => users.getUser(id)));
+    return items.map((item) => item.name);
+  }
+
+  async updateConversationTitles() {
+    for (const conversation of this.conversations) {
+      const names = await this.getNames(
+        conversation.value.userIds.filter((id) => id !== auth.user.id)
+      );
+      conversation.value.title = names.join(",");
+    }
   }
 }
 
