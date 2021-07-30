@@ -1,34 +1,12 @@
 // @ts-ignore
 import { api, data } from "@serverless/cloud";
-import { auth } from "@serverless/cloud-auth0";
+import { auth } from "@serverless/cloud-auth";
 import { geo } from "@serverless/cloud-geo";
 import cors from "cors";
 import ksuid from "ksuid";
-import { v5 as uuidv5 } from "uuid";
-
-const USER_UUID_NAMESPACE = "9738E54D-3350-402B-9849-35F0ECEB772C";
 
 api.use(cors());
 api.use(auth());
-
-api.use(async (req, res, next) => {
-  const { sub } = req.token;
-  const id = uuidv5(sub, USER_UUID_NAMESPACE);
-  let user = await data.get(`user:${id}`);
-
-  try {
-    if (!user) {
-      user = { id, sub };
-      await data.set(`user:${id}`, user);
-    }
-  } catch (error) {
-    throw error;
-  }
-
-  req.user = user;
-
-  return next();
-});
 
 api.get("/state", async (req, res) => {
   const [messages, conversations] = await Promise.all([

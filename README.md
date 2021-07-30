@@ -43,3 +43,9 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 - emoji picker
 - gify type image messages
 - ability to recenter the map on your current location
+
+# Issues found
+
+- TS sub-packages not transformed by Jest
+- conflicting update error when updating service
+- CLI crash, exception in packaging worker when moving/renaming modules
