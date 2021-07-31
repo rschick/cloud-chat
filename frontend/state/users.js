@@ -2,6 +2,8 @@ import { proxy } from "valtio";
 import { debounce } from "lodash";
 import LRUCache from "lru-cache";
 
+import { NEXT_PUBLIC_API_URL } from "./config";
+
 import auth from "./auth";
 
 class Users {
@@ -27,7 +29,7 @@ class Users {
 
   async fetchInternal() {
     const token = await auth.getToken();
-    const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_API}/users`);
+    const url = new URL(`${NEXT_PUBLIC_API_URL}/users`);
     if (this.bounds?.sw) {
       url.searchParams.append("sw.lat", this.bounds.sw.lat);
       url.searchParams.append("sw.lon", this.bounds.sw.lon);
@@ -52,14 +54,11 @@ class Users {
   async getUser(id) {
     if (!this.userCache.get(id)) {
       const token = await auth.getToken();
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API}/users/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${NEXT_PUBLIC_API_URL}/users/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const user = await response.json();
       this.userCache.set(id, user);

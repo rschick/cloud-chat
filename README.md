@@ -13,7 +13,9 @@
 - npm run build in frontend
 - cloud in backend
 
-# Params
+# Cloud Params
+
+Create the following params for the cloud-chat service
 
 AUTH0_DOMAIN: "Domain" from your Auth0 application settings
 AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
@@ -21,8 +23,7 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 # TODO
 
 - comment code
-- update readme
-- deploy to named stage
+- update readme (auth0 instructions mainly)
 - github actions, deploy to prod
 - small screen responsive layout
 

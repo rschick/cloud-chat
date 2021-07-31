@@ -2,6 +2,8 @@ import { proxy } from "valtio";
 
 import events from "@events/hub";
 
+import { NEXT_PUBLIC_API_URL } from "./config";
+
 import auth from "./auth";
 import users from "./users";
 
@@ -90,7 +92,7 @@ class Messages {
     }
 
     const token = await auth.getToken();
-    const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_API}/state`);
+    const url = new URL(`${NEXT_PUBLIC_API_URL}/state`);
     if (conversationId) {
       url.searchParams.append("convId", conversationId);
     }
@@ -137,19 +139,16 @@ class Messages {
 
   async createConversation() {
     const token = await auth.getToken();
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API}/conversations`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userIds: [this.selectedUserId, auth.user.id],
-        }),
-      }
-    );
+    const response = await fetch(`${NEXT_PUBLIC_API_URL}/conversations`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userIds: [this.selectedUserId, auth.user.id],
+      }),
+    });
 
     const { convId } = await response.json();
 
@@ -162,20 +161,17 @@ class Messages {
     }
 
     const token = await auth.getToken();
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_API}/messages`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          convId: this.selectedConversationId,
-          text,
-        }),
-      }
-    );
+    const response = await fetch(`${NEXT_PUBLIC_API_URL}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        convId: this.selectedConversationId,
+        text,
+      }),
+    });
 
     const { messages, conversations } = await response.json();
 

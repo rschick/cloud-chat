@@ -1,6 +1,13 @@
 import { proxy } from "valtio";
 
 import createAuth0Client from "@auth0/auth0-spa-js";
+import {
+  NEXT_PUBLIC_AUTH0_DOMAIN,
+  NEXT_PUBLIC_AUTH0_CLIENT_ID,
+  NEXT_PUBLIC_AUTH0_AUDIENCE,
+  NEXT_PUBLIC_API_URL,
+  NEXT_PUBLIC_APP_URL,
+} from "./config";
 
 const CODE_RE = /[?&]code=[^&]+/;
 const STATE_RE = /[?&]state=[^&]+/;
@@ -29,13 +36,11 @@ class Auth {
       return;
     }
 
-    this.watchPosition();
-
     auth0 = await createAuth0Client({
-      domain: process.env.NEXT_PUBLIC_AUTH0_DOMAIN,
-      client_id: process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID,
-      redirect_uri: process.env.NEXT_PUBLIC_REDIRECT_URI,
-      audience: process.env.NEXT_PUBLIC_BACKEND_AUDIENCE,
+      domain: NEXT_PUBLIC_AUTH0_DOMAIN,
+      client_id: NEXT_PUBLIC_AUTH0_CLIENT_ID,
+      audience: NEXT_PUBLIC_AUTH0_AUDIENCE,
+      redirect_uri: NEXT_PUBLIC_APP_URL,
       scope: "openid email profile",
       useRefreshTokens: true,
       cacheLocation: "localstorage",
@@ -55,6 +60,7 @@ class Auth {
       this.user = await this.getUser();
       if (this.user) {
         this.isAuthenticated = true;
+        this.watchPosition();
       }
       this.isLoading = false;
       this.error = undefined;
@@ -77,7 +83,7 @@ class Auth {
 
   async logout() {
     auth0.logout({
-      returnTo: process.env.NEXT_PUBLIC_POST_LOGOUT_REDIRECT_URI,
+      returnTo: NEXT_PUBLIC_APP_URL,
     });
     this.user = undefined;
     this.isAuthenticated = false;
@@ -91,7 +97,7 @@ class Auth {
       return;
     }
     const token = await this.getToken();
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/me`, {
+    const response = await fetch(`${NEXT_PUBLIC_API_URL}/me`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -112,7 +118,7 @@ class Auth {
     }
 
     const token = await this.getToken();
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API}/me`, {
+    const response = await fetch(`${NEXT_PUBLIC_API_URL}/me`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
