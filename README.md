@@ -3,15 +3,19 @@
 - create an API
 - create an Application
 
-# Dev mode
+# Local dev
 
 - npm start in frontend
-- cloud in backend
+- cloud start in backend
 
-# Prod
+# Personal instance
 
 - npm run build in frontend
-- cloud in backend
+- cloud start in backend
+
+# Deploy to prod
+
+- cloud deploy prod! :)
 
 # Cloud Params
 
@@ -22,19 +26,22 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 
 # TODO
 
+- small screen responsive layout
+- separate API for conversations and messages (call in parallel)
 - comment code
 - update readme (auth0 instructions mainly)
 - github actions, deploy to prod
-- small screen responsive layout
+
+- sort conversations by most recent activity
+- typing indicator
+- display user avatar in conversation list
+- display user avatar in conversation heading
 
 - frontend tests
-- sort conversations by most recent activity
-- display user avatar in conversation list
 - keep track of and show users that are "online"
 - edit your user profile
 - multi-user conversations
 - multi-line message input
-- typing indicator
 - show dates in conversation thread
 - search conversation messages
 - search user names
@@ -49,3 +56,4 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 - TS sub-packages not transformed by Jest
 - conflicting update error when updating service
 - CLI crash, exception in packaging worker when moving/renaming modules
+- Error: getaddrinfo ENOTFOUND undefined in prod (params not set up) - no stack trace?

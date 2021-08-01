@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
+import { useSnapshot } from "valtio";
 
 import MessageInput from "@components/MessageInput";
 import Messages from "@components/Messages";
@@ -11,15 +12,34 @@ import FullPageView from "@layout/FullPageView";
 
 import messages from "@state/messages";
 
+import viewState from "@state/view";
+import events from "@events/hub";
+
 export default function Home() {
   useEffect(() => messages.start(), []);
 
+  const view = useSnapshot(viewState);
+
+  const handleConversationSelected = useCallback(() => {
+    viewState.current = "conversation";
+  }, []);
+
+  useEffect(() => {
+    events.on("conversation.selected", handleConversationSelected);
+    return () => {
+      events.off("conversation.selected", handleConversationSelected);
+    };
+  }, [handleConversationSelected]);
+
   return (
     <FullPageView>
-      <Sidebar>
+      <Sidebar selected={view.current === "search"}>
         <ConversationSearch />
       </Sidebar>
-      <Main className="vh-100 d-flex flex-column">
+      <Main
+        className="vh-100 d-flex flex-column"
+        selected={view.current !== "search"}
+      >
         <TopNavbar />
         <Messages className="flex-grow-1" />
         <MessageInput />

@@ -30,11 +30,11 @@ class Messages {
       );
       this.fetch();
     }
-    events.emit("conversation.selected", [convId]);
+    events.emit("conversation.selected", [this.selectedConversationId]);
   }
 
   async findUserConversation(id) {
-    return this.conversations.find((c) => c.value.userIds.includes(id));
+    return this.conversations.find((c) => c.value.userIds?.includes(id));
   }
 
   async selectUser({ id, name }) {
@@ -64,7 +64,7 @@ class Messages {
 
     this.conversations = [this.selectedConversation, ...conversations];
 
-    events.emit("user.selected", [id]);
+    events.emit("conversation.selected", [this.selectedConversationId]);
   }
 
   start() {

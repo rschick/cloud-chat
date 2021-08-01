@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import ConversationList from "@components/ConversationList";
 import SearchInput from "@components/SearchInput";
@@ -6,7 +6,6 @@ import SearchResults from "@components/SearchResults";
 import UserMap from "@components/UserMap";
 
 import messages from "@state/messages";
-import users from "@state/users";
 
 export default function ConversationSearch() {
   const [query, setQuery] = useState("");

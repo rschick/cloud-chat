@@ -19,18 +19,16 @@ export default function MessageInput() {
     [message]
   );
 
-  const handleStartConversation = useCallback(() => {
-    input.current.focus();
+  const handleConversationSelected = useCallback(() => {
+    setTimeout(() => input.current.focus(), 100);
   }, []);
 
   useEffect(() => {
-    events.on("user.selected", handleStartConversation);
-    events.on("conversation.selected", handleStartConversation);
+    events.on("conversation.selected", handleConversationSelected);
     return () => {
-      events.off("user.selected", handleStartConversation);
-      events.off("conversation.selected", handleStartConversation);
+      events.off("conversation.selected", handleConversationSelected);
     };
-  }, [handleStartConversation]);
+  }, [handleConversationSelected]);
 
   return (
     <form onSubmit={handleSubmit} className="position-absolute bottom-0 w-100">
