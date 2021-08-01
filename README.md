@@ -1,57 +1,44 @@
-# Setting up Auth0
+[Cloud Chat](https://elegant-package-huklr.cloud.serverless.com) is an iMessage-inspired chat application built on [Serverless ⚡️ Cloud](https://serverless.github.io/cloud/).
+
+Find friends on the map and then start chatting. It's a fun way to make new friends from around the world. Be nice! 😀
+
+# Developing
+
+## Setting up Auth0
 
 - create an API
 - create an Application
 
-# Local dev
+Update these values in `.env`:
 
-- npm start in frontend
-- cloud start in backend
+- NEXT_PUBLIC_AUTH0_CLIENT_ID: the Client ID of your application
+- NEXT_PUBLIC_AUTH0_DOMAIN: the Domain of your application
+- NEXT_PUBLIC_AUTH0_AUDIENCE: the API Audience aka Identifier of your API
 
-# Personal instance
+## Params
 
-- npm run build in frontend
-- cloud start in backend
+Create the following params in the Cloud dashboard for the cloud-chat service:
 
-# Deploy to prod
+- AUTH0_DOMAIN: "Domain" from your Auth0 application settings
+- AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 
-- cloud deploy prod! :)
+## Local dev
 
-# Cloud Params
+You can run the frontend on localhost and talk to the Cloud API.
 
-Create the following params for the cloud-chat service
+1. Run `cloud start` in the backend folder
 
-AUTH0_DOMAIN: "Domain" from your Auth0 application settings
-AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
+1. Change `NEXT_PUBLIC_API_URL` in .env.development to point to your personal instance URL
 
-# TODO
+1. run `npm start` in the frontend folder
 
-- comment code
-- update readme (auth0 instructions mainly)
-- github actions, deploy to prod
+## Personal instance
 
-- typing indicator
-- display user avatar in conversation list
-- display user avatar in conversation heading
+1. Run `npm run build` in the frontend folder
+1. Run `cloud start` in the backend folder
 
-- frontend tests
-- frontend types
-- keep track of and show users that are "online"
-- edit your user profile
-- multi-user conversations
-- multi-line message input
-- show dates in conversation thread
-- search conversation messages
-- search user names
-- play sound when a message arrives
-- handle errors when fetching data
-- emoji picker
-- gify type image messages
-- ability to recenter the map on your current location
+The `static` folder in the backend folder links to the `out` folder of the frontend app, so will be synced to your Cloud personal instance every time you build.
 
-# Issues found
+## Deploy to prod
 
-- TS sub-packages not transformed by Jest
-- conflicting update error when updating service
-- CLI crash, exception in packaging worker when moving/renaming modules
-- Error: getaddrinfo ENOTFOUND undefined in prod (params not set up) - no stack trace?
+In the Cloud shell, run `deploy prod --overwrite` to deploy to the `prod` named instance.
