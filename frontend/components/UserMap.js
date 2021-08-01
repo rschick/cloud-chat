@@ -23,16 +23,18 @@ export default function UserMap() {
     users.setSearchBounds(bounds);
   }, []);
 
+  if (!user.lat) {
+    return null;
+  }
+
   return (
-    <>
-      <Map
-        zoom={10}
-        markers={markers}
-        height={200}
-        lat={user.lat}
-        lon={user.lon}
-        onBoundsChange={handleBoundsChange}
-      />
-    </>
+    <Map
+      zoom={10}
+      markers={markers}
+      height={200}
+      lat={user.lat}
+      lon={user.lon}
+      onBoundsChange={handleBoundsChange}
+    />
   );
 }

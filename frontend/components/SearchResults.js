@@ -12,7 +12,7 @@ function UserItem({ picture, name, onClick }) {
     <a
       href="#"
       className={clsx(
-        "list-group-item list-group-item-action bg-gray-200 border-0 ps-2 d-flex align-items-center gap-3"
+        "list-group-item list-group-item-action bg-gray-200 border-0 px-0 py-1 d-flex align-items-center gap-3"
       )}
       onClick={onClick}
     >
@@ -27,7 +27,7 @@ function ConversationItem({ title, picture, last, selected, onClick }) {
     <a
       href="#"
       className={clsx(
-        "list-group-item list-group-item-action bg-gray-200 border-0 ps-2 d-flex gap-3 align-items-center",
+        "list-group-item list-group-item-action bg-gray-200 border-0 px-0 d-flex gap-3 align-items-center",
         selected && "active"
       )}
       onClick={onClick}
@@ -48,12 +48,16 @@ function ConversationItem({ title, picture, last, selected, onClick }) {
   );
 }
 
+function NoUsers() {
+  return <p>No users found, try zooming out or panning to a different area</p>;
+}
+
 export default function SearchResults({
   onConversationClick = noop,
   onUserClick = noop,
 }) {
   const { conversations } = useSnapshot(messages);
-  const { items: userList } = useSnapshot(users);
+  const { items: userList, ready } = useSnapshot(users);
 
   return (
     <div className="p-2">
@@ -74,16 +78,21 @@ export default function SearchResults({
 
       <div className="p-0 pt-4">
         <h4>Users nearby</h4>
-        {userList.length > 0 && (
-          <ul className="list-group">
-            {userList.map(({ key, value }) => (
-              <UserItem
-                key={key}
-                {...value}
-                onClick={() => onUserClick(value)}
-              />
-            ))}
-          </ul>
+        {ready && (
+          <>
+            {userList.length === 0 && <NoUsers />}
+            {userList.length > 0 && (
+              <ul className="list-group">
+                {userList.map(({ key, value }) => (
+                  <UserItem
+                    key={key}
+                    {...value}
+                    onClick={() => onUserClick(value)}
+                  />
+                ))}
+              </ul>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -7,6 +7,10 @@ import MessageBubble from "@components/MessageBubble";
 import messagesState from "@state/messages";
 import authState from "@state/auth";
 
+function NoMessages() {
+  return <p></p>;
+}
+
 export default function Messages({ className }) {
   const { messages } = useSnapshot(messagesState);
   const auth = useSnapshot(authState);

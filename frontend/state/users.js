@@ -1,5 +1,5 @@
 import { proxy } from "valtio";
-import { debounce } from "lodash";
+import { throttle } from "lodash";
 
 import { NEXT_PUBLIC_API_URL } from "./config";
 
@@ -10,9 +10,10 @@ class Users {
   bounds;
   center;
   radius;
+  ready = false;
   userCache = new Map();
 
-  fetch = debounce(this.fetchInternal, 1000);
+  fetch = throttle(this.fetchInternal, 1000);
 
   setSearchBounds(bounds) {
     this.bounds = bounds;
@@ -48,6 +49,7 @@ class Users {
 
     const { items } = await response.json();
     this.items = (items || []).filter((item) => item.value.id !== auth.user.id);
+    this.ready = true;
   }
 
   async getUser(id) {

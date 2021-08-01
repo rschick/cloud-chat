@@ -225,6 +225,9 @@ class Messages {
       return;
     }
 
+    const text = this.message;
+    this.message = "";
+
     if (this.selectedConversationId === "new-conversation") {
       this.selectedConversationId = await this.createConversation();
     }
@@ -238,12 +241,11 @@ class Messages {
       },
       body: JSON.stringify({
         convId: this.selectedConversationId,
-        text: this.message,
+        text,
       }),
     });
 
     this.selectedUserId = undefined;
-    this.message = "";
 
     await Promise.all([this.fetch(), this.clearTyping()]);
   }

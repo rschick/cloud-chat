@@ -9,7 +9,7 @@ function ConversationItem({ picture, title, last, selected, onClick, typing }) {
   return (
     <div
       className={clsx(
-        "list-group-item list-group-item-action bg-gray-200 border-0 p-2"
+        "list-group-item list-group-item-action bg-white border-0 py-1 px-0"
       )}
     >
       <a
@@ -37,6 +37,14 @@ function ConversationItem({ picture, title, last, selected, onClick, typing }) {
   );
 }
 
+function NoConversations() {
+  return (
+    <p className="text-center m-4 text-black-50">
+      No conversations found, try searching for users nearby
+    </p>
+  );
+}
+
 export default function ConversationList() {
   const { conversations, selectedConversationId } = useSnapshot(messageState);
 
@@ -46,6 +54,7 @@ export default function ConversationList() {
 
   return (
     <div>
+      {conversations.length === 0 && <NoConversations />}
       <ul className="list-group rounded-0">
         {conversations.map(({ key, value }) => (
           <ConversationItem

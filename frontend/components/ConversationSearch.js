@@ -9,7 +9,7 @@ import messages from "@state/messages";
 
 export default function ConversationSearch() {
   const [query, setQuery] = useState("");
-  const [searching, setSearching] = useState(false);
+  const [searching, setSearching] = useState(true);
 
   const handleQueryChange = useCallback((value) => {
     setQuery(value);
