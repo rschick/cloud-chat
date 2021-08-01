@@ -6,7 +6,16 @@ import { v5 as uuidv5 } from "uuid";
 
 const USER_UUID_NAMESPACE = "9738E54D-3350-402B-9849-35F0ECEB772C";
 
-export interface Message {}
+export type MessageId = string;
+
+export interface Message {
+  value: {
+    id: MessageId;
+    from: UserId;
+    convId: ConversationId;
+    text: string;
+  };
+}
 
 export type ConversationId = string;
 
@@ -42,20 +51,8 @@ export async function getConversations(userId: UserId) {
   return { items };
 }
 
-export async function getState(
-  userId: string,
-  convId: string
-): Promise<ChatState> {
-  const [messages, conversations] = await Promise.all([
-    data.get(`conv_${convId}:msg_*`),
-    getConversations(userId),
-  ]);
-
-  return {
-    convId,
-    messages,
-    conversations,
-  };
+export async function getMessages(convId: string): Promise<ItemList<Message>> {
+  return data.get(`conv_${convId}:msg_*`);
 }
 
 export async function createConversation(
@@ -85,7 +82,7 @@ export async function sendMessage(
   convId: string,
   fromUserId: UserId,
   text: string
-): Promise<void> {
+): Promise<Message> {
   const messageId = (await ksuid.random()).string;
 
   const message = {
@@ -108,6 +105,8 @@ export async function sendMessage(
       })
     ),
   ]);
+
+  return { value: message };
 }
 
 export async function getUser(userId: UserId): Promise<User> {
@@ -207,7 +206,8 @@ export async function listAllUsers(): Promise<ItemList<User>> {
 export default {
   createConversation,
   sendMessage,
-  getState,
+  getConversations,
+  getMessages,
   getUser,
   getUserForSub,
   updateUser,

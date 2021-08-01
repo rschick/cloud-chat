@@ -85,24 +85,42 @@ class Messages {
     }
   }
 
+  async getConversations() {
+    const token = await auth.getToken();
+    const response = await fetch(`${NEXT_PUBLIC_API_URL}/conversations`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.json();
+  }
+
+  async getMessages(convId) {
+    if (!convId) {
+      return { items: [] };
+    }
+    const token = await auth.getToken();
+    const url = new URL(`${NEXT_PUBLIC_API_URL}/messages`);
+    url.searchParams.append("convId", convId);
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.json();
+  }
+
   async fetch() {
     const conversationId = this.selectedConversationId;
     if (!conversationId) {
       this.messages = [];
     }
 
-    const token = await auth.getToken();
-    const url = new URL(`${NEXT_PUBLIC_API_URL}/state`);
-    if (conversationId) {
-      url.searchParams.append("convId", conversationId);
-    }
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const [messages, conversations] = await Promise.all([
+      this.getMessages(conversationId),
+      this.getConversations(),
+    ]);
 
-    const { messages, conversations } = await response.json();
     this.messages = messages.items;
     this.conversations = conversations.items;
 
@@ -161,7 +179,7 @@ class Messages {
     }
 
     const token = await auth.getToken();
-    const response = await fetch(`${NEXT_PUBLIC_API_URL}/messages`, {
+    await fetch(`${NEXT_PUBLIC_API_URL}/messages`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -173,13 +191,9 @@ class Messages {
       }),
     });
 
-    const { messages, conversations } = await response.json();
-
-    this.messages = messages.items;
-    this.conversations = conversations.items;
     this.selectedUserId = undefined;
 
-    await this.updateConversationTitles();
+    await this.fetch();
   }
 
   async getNames(userIds) {

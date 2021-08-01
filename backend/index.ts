@@ -9,21 +9,28 @@ api.use(cors());
 api.use(auth());
 api.use(user());
 
-api.get("/state", async (req, res) => {
-  const state = await data.getState(req.user.id, req.query.convId);
-  res.json(state);
+api.get("/messages", async (req, res) => {
+  const result = await data.getMessages(req.query.convId);
+  res.json(result);
 });
 
 api.post("/messages", async (req, res) => {
-  await data.sendMessage(req.body.convId, req.user.id, req.body.text);
-  const state = await data.getState(req.user.id, req.body.convId);
-  res.json(state);
+  const result = await data.sendMessage(
+    req.body.convId,
+    req.user.id,
+    req.body.text
+  );
+  res.json(result);
+});
+
+api.get("/conversations", async (req, res) => {
+  const result = await data.getConversations(req.user.id);
+  res.json(result);
 });
 
 api.post("/conversations", async (req, res) => {
   const { value } = await data.createConversation(req.body.userIds);
-  const state = await data.getState(req.user.id, value.convId);
-  res.json(state);
+  res.json(value);
 });
 
 api.put("/me", async (req, res) => {

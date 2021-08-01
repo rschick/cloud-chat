@@ -14,10 +14,13 @@ export default function TopNavbar() {
   const { selectedConversation } = useSnapshot(messages);
 
   return (
-    <Navbar bg="light" className="border-bottom">
+    <Navbar className="border-bottom">
       <Container fluid>
-        <Nav className="d-md-none">
-          <Nav.Link onClick={() => (view.current = "search")}>
+        <Nav className="d-md-none text-primary">
+          <Nav.Link
+            className="text-primary"
+            onClick={() => (view.current = "search")}
+          >
             <ChevronLeft />
           </Nav.Link>
         </Nav>

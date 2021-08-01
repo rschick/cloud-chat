@@ -70,13 +70,9 @@ test("should get a user by id", async () => {
   });
 });
 
-test("should get no messages or conversations", async () => {
-  const { body } = await api.get("/state").invoke();
-
-  expect(body).toEqual({
-    conversations: { items: [] },
-    messages: { items: [] },
-  });
+test("should get no conversations", async () => {
+  const { body } = await api.get("/conversations").invoke();
+  expect(body).toEqual({ items: [] });
 });
 
 test("should create a new conversation", async () => {
@@ -89,69 +85,29 @@ test("should create a new conversation", async () => {
 
   expect(body).toEqual({
     convId: expect.any(String),
-    conversations: {
-      items: [
-        {
-          key: expect.stringMatching(/user_.+\:conv_.*/),
-          value: {
-            convId: expect.any(String),
-            userId: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
-            userIds: [
-              "7215ce0f-20a3-4b56-a0fb-00161f42f4f8",
-              "b23b3aeb-15aa-5527-9e4f-7094fe053410",
-            ],
-          },
-        },
-      ],
-    },
-    messages: {
-      items: [],
-    },
+    userIds: [
+      "7215ce0f-20a3-4b56-a0fb-00161f42f4f8",
+      "b23b3aeb-15aa-5527-9e4f-7094fe053410",
+    ],
   });
 });
 
 test("should send a message", async () => {
   const {
-    body: { conversations },
-  } = await api.get("/state").invoke();
-  const convId = conversations.items[0].value.convId;
+    body: { items: conversations },
+  } = await api.get("/conversations").invoke();
+  const convId = conversations[0].value.convId;
 
   const { body } = await api.post("/messages").invoke({
     convId,
     text: "Hi!",
   });
 
-  expect(body).toEqual({
-    convId: expect.any(String),
-    conversations: {
-      items: [
-        {
-          key: expect.stringMatching(/user_.+\:conv_.*/),
-          value: {
-            convId: expect.any(String),
-            last: "Hi!",
-            userId: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
-            userIds: [
-              "7215ce0f-20a3-4b56-a0fb-00161f42f4f8",
-              "b23b3aeb-15aa-5527-9e4f-7094fe053410",
-            ],
-          },
-        },
-      ],
-    },
-    messages: {
-      items: [
-        {
-          key: expect.stringMatching(/conv_.*\:msg_.*/),
-          value: {
-            convId: convId,
-            from: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
-            id: expect.any(String),
-            text: "Hi!",
-          },
-        },
-      ],
-    },
+  expect(body.value).toEqual({
+    convId: convId,
+    from: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
+    id: expect.any(String),
+    text: "Hi!",
   });
 });
 
