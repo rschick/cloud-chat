@@ -37,10 +37,7 @@ export default function Home() {
       <Sidebar selected={view.current === "search"}>
         <ConversationSearch />
       </Sidebar>
-      <Main
-        className="vh-100 d-flex flex-column"
-        selected={view.current !== "search"}
-      >
+      <Main className="d-flex flex-column" selected={view.current !== "search"}>
         <TopNavbar />
         <Messages className="flex-grow-1" />
         <MessageInput typing={selectedConversation?.value.typing} />

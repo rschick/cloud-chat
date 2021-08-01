@@ -56,7 +56,7 @@ export default function MessageBubble({ message, sent }) {
       `}</style>
       <li
         className={clsx(
-          "d-flex align-items-center",
+          "d-flex align-items-center overflow-hidden",
           sent && "flex-row-reverse"
         )}
       >
