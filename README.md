@@ -1,4 +1,4 @@
-[Cloud Chat](https://elegant-package-huklr.cloud.serverless.com) is an iMessage-inspired chat application built on [Serverless ⚡️ Cloud](https://serverless.github.io/cloud/).
+[Cloud Chat](https://distributed-source-t9cms.cloud.serverless.com) is an iMessage-inspired chat application built on [Serverless ⚡️ Cloud](https://serverless.github.io/cloud/).
 
 Find friends on the map and then start chatting. It's a fun way to make new friends from around the world. Be nice! 😀
 
