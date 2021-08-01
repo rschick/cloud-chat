@@ -1,26 +1,29 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
+import { useSnapshot } from "valtio";
 
 import messages from "@state/messages";
 import events from "@events/hub";
+import TypingBubble from "@components/TypingBubble";
 
-export default function MessageInput() {
-  const [message, setMessage] = useState("");
+export default function MessageInput({ typing }) {
+  const { message } = useSnapshot(messages);
   const input = useRef();
 
-  const handleSubmit = useCallback(
-    (event) => {
-      (async () => {
-        event.preventDefault();
-        event.stopPropagation();
-        messages.send(message);
-        setMessage("");
-      })();
-    },
-    [message]
-  );
+  const handleSubmit = useCallback((event) => {
+    (async () => {
+      event.preventDefault();
+      event.stopPropagation();
+      messages.send();
+    })();
+  }, []);
 
   const handleConversationSelected = useCallback(() => {
     setTimeout(() => input.current.focus(), 100);
+  }, []);
+
+  const handleChange = useCallback((event) => {
+    messages.message = event.target.value;
+    messages.updateTyping();
   }, []);
 
   useEffect(() => {
@@ -39,13 +42,14 @@ export default function MessageInput() {
       `}</style>
 
       <div className="p-2">
+        {typing && <TypingBubble />}
         <input
           ref={input}
           className="text-muted rounded-pill form-control"
           type="text"
           value={message}
           placeholder="Message"
-          onChange={(event) => setMessage(event.target.value)}
+          onChange={handleChange}
         />
       </div>
     </form>

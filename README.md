@@ -30,7 +30,6 @@ AUTH0_AUDIENCE: "Identifier" from your Auth0 API settings
 - update readme (auth0 instructions mainly)
 - github actions, deploy to prod
 
-- sort conversations by most recent activity
 - typing indicator
 - display user avatar in conversation list
 - display user avatar in conversation heading

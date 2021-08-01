@@ -10,10 +10,15 @@ import users from "./users";
 class Messages {
   messages = [];
   conversations = [];
+  typing = false;
+  message = "";
 
   selectedConversation;
   selectedConversationId;
   selectedUserId;
+
+  typingConversationId;
+  typingTimeout;
 
   selectConversation({ convId }) {
     if (convId !== this.selectedConversationId) {
@@ -85,6 +90,50 @@ class Messages {
     }
   }
 
+  async updateTyping() {
+    if (this.typingTimeout) {
+      clearTimeout(this.typingTimeout);
+    }
+
+    if (
+      this.typingConversationId &&
+      this.typingConversationId !== this.selectedConversationId
+    ) {
+      await this.putTypingState(this.typingConversationId, false);
+      this.typingConversationId = undefined;
+    }
+
+    if (
+      this.selectedConversationId &&
+      this.selectedConversationId !== "new-conversation" &&
+      !this.typingConversationId
+    ) {
+      this.typingConversationId = this.selectedConversationId;
+      await this.putTypingState(this.typingConversationId, true);
+    }
+    this.typingTimeout = setTimeout(this.clearTyping.bind(this), 5000);
+  }
+
+  async clearTyping() {
+    await this.putTypingState(this.typingConversationId, false);
+    this.typingConversationId = undefined;
+  }
+
+  async putTypingState(convId, typing) {
+    const token = await auth.getToken();
+    await fetch(`${NEXT_PUBLIC_API_URL}/typing`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        convId,
+        typing,
+      }),
+    });
+  }
+
   async getConversations() {
     const token = await auth.getToken();
     const response = await fetch(`${NEXT_PUBLIC_API_URL}/conversations`, {
@@ -96,7 +145,7 @@ class Messages {
   }
 
   async getMessages(convId) {
-    if (!convId) {
+    if (!convId || convId === "new-conversation") {
       return { items: [] };
     }
     const token = await auth.getToken();
@@ -123,8 +172,6 @@ class Messages {
 
     this.messages = messages.items;
     this.conversations = conversations.items;
-
-    await this.updateConversationTitles();
 
     this.selectedConversation =
       this.selectedConversationId &&
@@ -173,7 +220,11 @@ class Messages {
     return convId;
   }
 
-  async send(text) {
+  async send() {
+    if (!this.message) {
+      return;
+    }
+
     if (this.selectedConversationId === "new-conversation") {
       this.selectedConversationId = await this.createConversation();
     }
@@ -187,27 +238,18 @@ class Messages {
       },
       body: JSON.stringify({
         convId: this.selectedConversationId,
-        text,
+        text: this.message,
       }),
     });
 
     this.selectedUserId = undefined;
+    this.message = "";
 
-    await this.fetch();
+    await Promise.all([this.fetch(), this.clearTyping()]);
   }
 
-  async getNames(userIds) {
-    const items = await Promise.all(userIds.map((id) => users.getUser(id)));
-    return items.map((item) => item.name);
-  }
-
-  async updateConversationTitles() {
-    for (const conversation of this.conversations) {
-      const names = await this.getNames(
-        conversation.value.userIds.filter((id) => id !== auth.user.id)
-      );
-      conversation.value.title = names.join(",");
-    }
+  async getUsers(userIds) {
+    return await Promise.all(userIds.map((id) => users.getUser(id)));
   }
 }
 

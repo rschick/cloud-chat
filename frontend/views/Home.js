@@ -19,6 +19,7 @@ export default function Home() {
   useEffect(() => messages.start(), []);
 
   const view = useSnapshot(viewState);
+  const { selectedConversation } = useSnapshot(messages);
 
   const handleConversationSelected = useCallback(() => {
     viewState.current = "conversation";
@@ -42,7 +43,7 @@ export default function Home() {
       >
         <TopNavbar />
         <Messages className="flex-grow-1" />
-        <MessageInput />
+        <MessageInput typing={selectedConversation?.value.typing} />
       </Main>
     </FullPageView>
   );

@@ -1,18 +1,14 @@
-import auth from "@state/auth";
-import { useSnapshot } from "valtio";
-
-export default function Avatar() {
-  const { user } = useSnapshot(auth);
+export default function Avatar({ src, alt }) {
   return (
     <>
       <style jsx>{`
         img {
-          width: 40px;
-          height: 40px;
-          border-radius: 20px;
+          width: 50px;
+          height: 50px;
+          border-radius: 10px;
         }
       `}</style>
-      <img src={user.picture} alt={user.name} />
+      <img src={src} alt={alt} />
     </>
   );
 }

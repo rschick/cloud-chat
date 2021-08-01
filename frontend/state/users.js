@@ -1,6 +1,5 @@
 import { proxy } from "valtio";
 import { debounce } from "lodash";
-import LRUCache from "lru-cache";
 
 import { NEXT_PUBLIC_API_URL } from "./config";
 
@@ -11,7 +10,7 @@ class Users {
   bounds;
   center;
   radius;
-  userCache = new LRUCache({ max: 100, maxAge: 60 * 1000 });
+  userCache = new Map();
 
   fetch = debounce(this.fetchInternal, 1000);
 

@@ -33,6 +33,11 @@ api.post("/conversations", async (req, res) => {
   res.json(value);
 });
 
+api.put("/typing", async (req, res) => {
+  await data.setTyping(req.user.id, req.body.convId, req.body.typing);
+  res.status(200).end();
+});
+
 api.put("/me", async (req, res) => {
   await data.updateUser(req.user, req.body);
   const user = await data.getUser(req.user.id);

@@ -9,6 +9,7 @@ beforeAll(async () => {
     lon: -123.15608540000001,
     name: "Another User",
     sub: "test-user|99999999",
+    picture: "another-picture-url",
   });
 });
 
@@ -41,6 +42,7 @@ test("should create user and update profile", async () => {
     lon: -123.15608540000001,
     name: "Test User",
     other_property: "something",
+    picture: "test-picture-url",
   });
 
   expect(body).toEqual({
@@ -51,6 +53,7 @@ test("should create user and update profile", async () => {
     name: "Test User",
     other_property: "something",
     sub: "cloud-auth0-mock|123456789",
+    picture: "test-picture-url",
   });
 });
 
@@ -67,6 +70,7 @@ test("should get a user by id", async () => {
     name: "Test User",
     other_property: "something",
     sub: "cloud-auth0-mock|123456789",
+    picture: "test-picture-url",
   });
 });
 
@@ -83,12 +87,21 @@ test("should create a new conversation", async () => {
     ],
   });
 
-  expect(body).toEqual({
-    convId: expect.any(String),
-    userIds: [
-      "7215ce0f-20a3-4b56-a0fb-00161f42f4f8",
-      "b23b3aeb-15aa-5527-9e4f-7094fe053410",
-    ],
+  const { convId } = body;
+
+  const {
+    body: { items: conversations },
+  } = await api.get("/conversations").invoke();
+
+  expect(conversations).toContainEqual({
+    key: `user_b23b3aeb-15aa-5527-9e4f-7094fe053410:conv_${convId}`,
+    value: {
+      convId,
+      title: "Another User",
+      userId: "b23b3aeb-15aa-5527-9e4f-7094fe053410",
+      userIds: ["7215ce0f-20a3-4b56-a0fb-00161f42f4f8"],
+      picture: "another-picture-url",
+    },
   });
 });
 
@@ -132,6 +145,7 @@ test("should get nearby users", async () => {
       name: "Test User",
       other_property: "something",
       sub: "cloud-auth0-mock|123456789",
+      picture: "test-picture-url",
     },
   });
 });

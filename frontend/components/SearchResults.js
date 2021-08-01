@@ -3,41 +3,47 @@ import messages from "@state/messages";
 import users from "@state/users";
 import clsx from "clsx";
 
+import Avatar from "./Avatar";
+
 const noop = () => {};
 
-function UserItem({ name, onClick }) {
+function UserItem({ picture, name, onClick }) {
   return (
     <a
       href="#"
       className={clsx(
-        "list-group-item list-group-item-action bg-gray-200 border-0 ps-2"
+        "list-group-item list-group-item-action bg-gray-200 border-0 ps-2 d-flex align-items-center gap-3"
       )}
       onClick={onClick}
     >
+      {picture && <Avatar src={picture} alt={name} />}
       <h1 className="fs-5 mb-1">{name}</h1>
     </a>
   );
 }
 
-function ConversationItem({ title, last, selected, onClick }) {
+function ConversationItem({ title, picture, last, selected, onClick }) {
   return (
     <a
       href="#"
       className={clsx(
-        "list-group-item list-group-item-action bg-gray-200 border-0 ps-2",
+        "list-group-item list-group-item-action bg-gray-200 border-0 ps-2 d-flex gap-3 align-items-center",
         selected && "active"
       )}
       onClick={onClick}
     >
-      <h1 className="fs-5 mb-1">{title}</h1>
-      <p
-        className={clsx(
-          selected ? "text-light" : "text-black-50",
-          "fs-6 mt-0 mb-1"
-        )}
-      >
-        {last}
-      </p>
+      {picture && <Avatar src={picture} alt={title} />}
+      <div>
+        <h1 className="fs-5 mb-1">{title}</h1>
+        <p
+          className={clsx(
+            selected ? "text-light" : "text-black-50",
+            "fs-6 mt-0 mb-1"
+          )}
+        >
+          {last}
+        </p>
+      </div>
     </a>
   );
 }

@@ -13,6 +13,9 @@ export default function TopNavbar() {
   const { user } = useSnapshot(auth);
   const { selectedConversation } = useSnapshot(messages);
 
+  const title = selectedConversation?.value.title;
+  const picture = selectedConversation?.value.picture;
+
   return (
     <Navbar className="border-bottom">
       <Container fluid>
@@ -24,12 +27,12 @@ export default function TopNavbar() {
             <ChevronLeft />
           </Nav.Link>
         </Nav>
-        <Navbar.Text className="flex-grow-1 text-center">
-          {selectedConversation ? selectedConversation.value.title : ""}
+        <Navbar.Text className="flex-grow-1 text-center d-flex flex-column align-items-center gap-2">
+          {picture && <Avatar src={picture} alt={title} />}
+          <div>{title}</div>
         </Navbar.Text>
         <Nav>
-          <NavDropdown title={<Avatar />} align="end">
-            <NavDropdown.Item>{user.name}</NavDropdown.Item>
+          <NavDropdown align="end">
             <NavDropdown.Item onClick={() => auth.logout()}>
               Logout
             </NavDropdown.Item>
